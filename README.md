@@ -34,22 +34,24 @@
 | 🧑‍💻 Member | Nguyễn Thành Chí | `QE190166` | `TV4` | Hủy vé, hoàn tiền, thống kê |
 | 🧑‍💻 Member | Phan Lý Trung | `QE210104` | `TV5` | Lưu/nạp file, khôi phục, menu |
 
-📚 Mục lục
-#	Chủ đề
-1	🌐 Tổng quan hệ thống
-2	🎭 Actor của hệ thống
-3	🔄 Luồng nghiệp vụ chính
-4	📏 Quy tắc nghiệp vụ
-5	🗺️ Use Case Diagram
-6	🧩 Class Diagram
-7	🔗 Quan hệ giữa các Class
-8	🎯 Đa hình và Dynamic Dispatch
-9	🗄️ Tầng lưu trữ dữ liệu
-10	📦 Dữ liệu mẫu
-11	✅ Kịch bản nghiệm thu
-12	🏗️ Kiến trúc tổng thể
-13	📁 Cấu trúc thư mục và file dữ liệu
-14	🚀 Hướng dẫn build và chạy
-15	🧪 Kiểm thử
-16	🤖 Minh bạch AI và giới hạn còn lại
-17	🏁 Kết luận
+## 📚 Mục lục
+
+| # | Chủ đề |
+|:---:|:---|
+| 1 | 🌐 [Tổng quan hệ thống](#-tổng-quan-hệ-thống) |
+| 2 | 🎭 [Actor của hệ thống](#-actor-của-hệ-thống) |
+| 3 | 🔄 [Luồng nghiệp vụ chính](#-luồng-nghiệp-vụ-chính) |
+| 4 | 📏 [Quy tắc nghiệp vụ](#-quy-tắc-nghiệp-vụ) |
+| 5 | 🗺️ [Use Case Diagram](#️-use-case-diagram) |
+| 6 | 🧩 [Class Diagram](#-class-diagram) |
+| 7 | 🔗 [Quan hệ giữa các Class](#-quan-hệ-giữa-các-class) |
+| 8 | 🎯 [Đa hình và Dynamic Dispatch](#-đa-hình-và-dynamic-dispatch) |
+| 9 | 🗄️ [Tầng lưu trữ dữ liệu](#️-tầng-lưu-trữ-dữ-liệu) |
+| 10 | 📦 [Dữ liệu mẫu](#-dữ-liệu-mẫu) |
+| 11 | ✅ [Kịch bản nghiệm thu](#-kịch-bản-nghiệm-thu) |
+| 12 | 🏗️ [Kiến trúc tổng thể](#️-kiến-trúc-tổng-thể) |
+| 13 | 📁 [Cấu trúc thư mục và file dữ liệu](#-cấu-trúc-thư-mục-và-file-dữ-liệu) |
+| 14 | 🚀 [Hướng dẫn build và chạy](#-hướng-dẫn-build-và-chạy) |
+| 15 | 🧪 [Kiểm thử](#-kiểm-thử) |
+| 16 | 🤖 [Minh bạch AI và giới hạn còn lại](#-minh-bạch-ai-và-giới-hạn-còn-lại) |
+| 17 | 🏁 [Kết luận](#-kết-luận) |
