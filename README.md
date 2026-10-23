@@ -33,3 +33,23 @@
 | 🧑‍💻 Member | Cao Trần Duy Phương | `QE210239` | `TV3` | Tạo lần đặt, sinh mã vé, tra cứu vé |
 | 🧑‍💻 Member | Nguyễn Thành Chí | `QE190166` | `TV4` | Hủy vé, hoàn tiền, thống kê |
 | 🧑‍💻 Member | Phan Lý Trung | `QE210104` | `TV5` | Lưu/nạp file, khôi phục, menu |
+
+📚 Mục lục
+#	Chủ đề
+1	🌐 Tổng quan hệ thống
+2	🎭 Actor của hệ thống
+3	🔄 Luồng nghiệp vụ chính
+4	📏 Quy tắc nghiệp vụ
+5	🗺️ Use Case Diagram
+6	🧩 Class Diagram
+7	🔗 Quan hệ giữa các Class
+8	🎯 Đa hình và Dynamic Dispatch
+9	🗄️ Tầng lưu trữ dữ liệu
+10	📦 Dữ liệu mẫu
+11	✅ Kịch bản nghiệm thu
+12	🏗️ Kiến trúc tổng thể
+13	📁 Cấu trúc thư mục và file dữ liệu
+14	🚀 Hướng dẫn build và chạy
+15	🧪 Kiểm thử
+16	🤖 Minh bạch AI và giới hạn còn lại
+17	🏁 Kết luận
