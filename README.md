@@ -209,7 +209,7 @@ Chọn suất → Xem sơ đồ ghế → Chọn nhiều ghế → Kiểm tra to
 ```
 
 <p align="center">
-  <img src="docs/diagrams/luong-nghiep-vu.png" alt="Luồng nghiệp vụ chính" width="100%">
+  <img src="docs/diagrams/luongnghiepvuchinh.png" alt="Luồng nghiệp vụ chính" width="100%">
 </p>
 
 <p align="center"><i>Hình 1. Luồng nghiệp vụ chính của hệ thống đặt vé xem phim</i></p>
