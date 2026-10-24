@@ -83,3 +83,118 @@
 | 5 | ❌ **Hủy vé** | Xác nhận hủy, giải phóng ghế đúng suất, hoàn tiền mô phỏng 100% |
 | 6 | 📊 **Thống kê** | Vé còn hiệu lực, ghế trống, tổng tiền, tổng hoàn, số tiền còn lại |
 | 7 | 💾 **Lưu và nạp file** | Giữ dữ liệu suất, ghế, đặt vé, trạng thái hủy qua các lần chạy |
+
+## 🎭 Actor của hệ thống
+
+Hệ thống có **2 actor**: 1 actor chính trực tiếp thao tác và 1 actor phụ là nơi lưu trữ dữ liệu.
+
+| Actor | Vai trò |
+|:---|:---|
+| 🧑‍💼 **Nhân viên quầy vé** | Thao tác mọi chức năng: xem suất, xem ghế, đặt vé, tra cứu và hủy vé |
+| 💾 **File lưu trữ** | Nhận dữ liệu khi lưu và cung cấp dữ liệu khi nạp lại chương trình |
+
+### 🧑‍💼 2.1. Nhân viên quầy vé
+
+Nhân viên quầy vé là người dùng duy nhất của chương trình console, thay mặt khách hàng thực hiện việc đặt và hủy vé.
+
+#### ⚙️ Chức năng
+
+- Xem danh sách **Showtime** (mã suất, tên phim, giờ chiếu, số ghế trống).
+- Xem sơ đồ **Seat** của một suất (trống / đã đặt).
+- Nhập tên người đặt.
+- Chọn nhiều ghế trong một lần đặt.
+- Xem báo giá và xác nhận đặt vé.
+- Tra cứu **Ticket** theo mã vé.
+- Hủy **Ticket** theo mã vé.
+- Xem thống kê theo suất chiếu.
+
+#### 📏 Quy tắc
+
+Nhân viên chỉ được hủy vé khi:
+
+```text
+Ticket.status = ACTIVE
+```
+
+> [!WARNING]
+> Vé đã hủy **không thể hủy lần hai**. Hủy một vé cũ cũng không được giải phóng ghế của vé mới đã đặt lại cùng ghế đó.
+
+> [!IMPORTANT]
+> Khi đặt vé, hệ thống phải kiểm tra **toàn bộ** danh sách ghế trước khi tạo bất kỳ vé nào. Chỉ cần một ghế sai (không tồn tại, bị lặp, hoặc đã có vé còn hiệu lực) thì **từ chối cả lần đặt**.
+
+### 💾 2.2. File lưu trữ
+
+File lưu trữ là nơi giữ dữ liệu giữa các lần chạy chương trình.
+
+#### ⚙️ Chức năng
+
+- Cung cấp dữ liệu đã lưu khi khởi động.
+- Nhận và ghi lại dữ liệu khi thoát.
+- Lưu suất chiếu, loại ghế, Booking, Ticket.
+- Lưu trạng thái hủy và đơn giá tại lúc đặt của từng vé.
+
+#### 🔄 Thời điểm tương tác
+
+| Thời điểm | Hành động |
+|:---|:---|
+| 🟢 Khởi động | Nạp dữ liệu; nếu chưa có file thì dùng dữ liệu mẫu |
+| 🔴 Thoát | Ghi toàn bộ dữ liệu hiện tại |
+
+> [!NOTE]
+> Nếu file bị hỏng, chương trình phải báo lỗi rõ ràng và **không** thay bằng dữ liệu rỗng rồi ghi đè file cũ.
+
+### 🔄 2.3. Trạng thái của Ticket
+
+```text
+(chưa có vé)
+     ↓  đặt vé và xác nhận
+   ACTIVE
+     ↓  hủy vé
+ CANCELLED
+```
+
+Trạng thái ghế được xác định theo cặp **mã suất + mã ghế**:
+
+| Trạng thái ghế | Điều kiện |
+|:---:|:---|
+| 🟩 **Trống** | Không có vé `ACTIVE` nào giữ ghế đó trong suất đó |
+| 🟥 **Đã đặt** | Có đúng một vé `ACTIVE` giữ ghế đó trong suất đó |
+
+#### 💡 Ví dụ
+
+Giả sử có:
+
+```text
+SC01: A1 trống, A2 trống, D1 trống
+An đặt A1, D1 ở SC01 → xác nhận
+```
+
+Kết quả:
+
+```text
+V1 = A1, 70.000  (ACTIVE)
+V2 = D1, 100.000 (ACTIVE)
+Tổng = 170.000
+SC01 còn 18 ghế
+```
+
+Nếu sau đó nhân viên đặt `A2` và `A1` ở SC01:
+
+```text
+A1 đang bị V1 giữ → từ chối CẢ lần đặt
+A2 vẫn trống, không có vé nào được tạo
+```
+
+Nhưng A1 ở **SC02** vẫn đặt được, vì ghế được xét theo từng suất.
+
+### 🏛️ 2.4. Quy tắc kiến trúc
+
+Hai logic quan trọng:
+
+```text
+validateSeats()
+cancelTicket()
+```
+
+> [!IMPORTANT]
+> `validateSeats()` và `cancelTicket()` phải được xử lý ở **lớp nghiệp vụ (Service)**, không đặt trong Menu. Menu chỉ nhận dữ liệu nhập và hiển thị kết quả.
