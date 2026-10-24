@@ -198,3 +198,112 @@ cancelTicket()
 
 > [!IMPORTANT]
 > `validateSeats()` và `cancelTicket()` phải được xử lý ở **lớp nghiệp vụ (Service)**, không đặt trong Menu. Menu chỉ nhận dữ liệu nhập và hiển thị kết quả.
+
+## 🔄 Luồng nghiệp vụ chính
+
+Luồng tổng quát của hệ thống:
+
+```text
+Chọn suất → Xem sơ đồ ghế → Chọn nhiều ghế → Kiểm tra toàn bộ danh sách ghế
+          → Xác nhận giá → Tạo Booking + Ticket → Tra cứu hoặc hủy vé → Lưu và nạp lại dữ liệu
+```
+
+<p align="center">
+  <img src="docs/diagrams/luong-nghiep-vu.png" alt="Luồng nghiệp vụ chính" width="100%">
+</p>
+
+<p align="center"><i>Hình 1. Luồng nghiệp vụ chính của hệ thống đặt vé xem phim</i></p>
+
+### 🧭 3.1. Các nhánh trong luồng
+
+| Điểm quyết định | Điều kiện | Kết quả |
+|:---|:---:|:---|
+| 🔶 **Kiểm tra toàn bộ danh sách ghế** | ✅ Hợp lệ | Chuyển sang bước **xác nhận giá** |
+| 🔶 **Kiểm tra toàn bộ danh sách ghế** | ❌ Không hợp lệ | **Từ chối cả lần đặt**, không tạo vé nào |
+| 🔶 **Xác nhận giá** | ✅ Xác nhận | **Tạo Booking + Ticket** |
+| 🔶 **Xác nhận giá** | ❌ Không xác nhận | **Từ chối cả lần đặt**, không giữ chỗ |
+
+> [!IMPORTANT]
+> Việc đặt vé là **all-or-nothing**: kiểm tra xong toàn bộ danh sách mới tạo vé. Chỉ cần một ghế sai, hoặc nhân viên không xác nhận giá, thì không có vé nào được tạo.
+
+### 🎟️ 3.2. Chi tiết từng bước
+
+| Bước | Hành động | Kết quả |
+|:---:|:---|:---|
+| 1 | 🎞️ **Chọn suất** | Nhân viên nhập mã suất; hệ thống kiểm tra suất tồn tại |
+| 2 | 💺 **Xem sơ đồ ghế** | Hiển thị ghế trống / đã đặt của đúng suất đó |
+| 3 | ✍️ **Chọn nhiều ghế** | Nhập tên người đặt (không rỗng sau `trim()`) và danh sách ghế |
+| 4 | 🔶 **Kiểm tra toàn bộ danh sách ghế** | Kiểm tra hết trước, chưa tạo bất kỳ vé nào |
+| 5 | 💰 **Xác nhận giá** | Báo giá từng ghế và tổng tiền; nhân viên đồng ý hoặc từ chối |
+| 6 | 🎟️ **Tạo Booking + Ticket** | Sinh mã không trùng, lưu **đơn giá lúc đặt** trên từng vé |
+| 7 | 🔍 **Tra cứu hoặc hủy vé** | Tra theo mã vé, hoặc hủy vé còn hiệu lực |
+| 8 | 💾 **Lưu và nạp lại dữ liệu** | Ghi file khi thoát, nạp lại khi mở chương trình |
+
+#### ✅ Điều kiện danh sách ghế hợp lệ
+
+- Có **ít nhất 1 ghế**.
+- Mã ghế nằm trong sơ đồ (**A1–D5**); nhập chữ thường vẫn được và tự chuẩn hóa thành chữ hoa.
+- **Không lặp** mã ghế trong cùng một lần đặt.
+- Không có ghế nào đang bị vé `ACTIVE` giữ trong suất đó.
+
+#### 💡 Ví dụ đặt vé thành công
+
+```text
+An đặt A1, D1 ở SC01 → xác nhận giá
+
+Booking B1
+  ├── V1: A1 (Standard) = 70.000
+  └── V2: D1 (VIP)      = 100.000
+Tổng = 170.000
+SC01 còn 18 ghế
+```
+
+#### 💡 Ví dụ bị từ chối
+
+```text
+Nhân viên đặt A2 và A1 ở SC01 (A1 đang bị V1 giữ)
+→ Từ chối CẢ lần đặt, A2 vẫn trống, không tạo vé nào
+```
+
+### 🔍 3.3. Tra cứu vé
+
+| Bước | Hành động |
+|:---:|:---|
+| 1 | Nhân viên nhập **mã vé** |
+| 2 | Hệ thống tìm vé trong danh sách |
+| 3 | Hiển thị: người đặt, mã Booking, suất chiếu, ghế, **đơn giá lúc đặt**, trạng thái |
+
+> [!NOTE]
+> Vé đã hủy vẫn được giữ lại để tra cứu và hiển thị trạng thái `CANCELLED`.
+
+### ❌ 3.4. Hủy vé
+
+| Bước | Hành động | Kết quả |
+|:---:|:---|:---|
+| 1 | Nhập **mã vé** cần hủy | Kiểm tra vé tồn tại |
+| 2 | Kiểm tra trạng thái | Chỉ hủy được khi `ACTIVE` |
+| 3 | Nhân viên **xác nhận hủy** | Không xác nhận thì giữ nguyên |
+| 4 | Vé chuyển sang `CANCELLED` | Chỉ hủy ghế trên vé đó |
+| 5 | Giải phóng ghế **đúng suất** | Các vé khác cùng Booking giữ nguyên |
+| 6 | Hoàn tiền mô phỏng **100% đơn giá đã lưu trên vé** | Không tính lại theo bảng giá hiện tại |
+
+> [!WARNING]
+> Hủy lần hai bị từ chối. Hủy một vé cũ không được giải phóng ghế của vé mới đã đặt lại cùng ghế đó.
+
+```text
+Hủy V1 (A1, SC01) → xác nhận
+V1 = CANCELLED, hoàn 70.000
+SC01 còn 19 ghế
+Tổng gốc 170.000 | Tổng hoàn 70.000 | Còn lại 100.000
+```
+
+### 💾 3.5. Lưu và nạp lại dữ liệu
+
+```text
+Khởi động → Có file dữ liệu?  → Có: nạp lại toàn bộ
+                              → Không: dùng dữ liệu mẫu (SC01, SC02)
+Thoát     → Ghi toàn bộ suất, ghế, Booking, Ticket, trạng thái hủy ra file
+```
+
+> [!IMPORTANT]
+> Sau khi lưu rồi mở lại, mọi trạng thái phải khôi phục đầy đủ: vé nào đã hủy, ghế nào đã đặt, đơn giá lúc đặt và các số tiền. Mã Booking và mã vé mới **không được trùng** với mã đã có.
