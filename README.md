@@ -66,12 +66,14 @@ Một rạp, một phòng chiếu 4 hàng × 5 ghế (A1–D5, 20 ghế).
 Hai loại ghế: Standard (hàng A, B, C) và VIP (hàng D).
 Danh sách nhỏ các suất chiếu mẫu (SC01, SC02).
 Không có GUI, database, đăng nhập, thanh toán thật, nhiều phòng hay giá theo ngày lễ.
-⚙️ Chức năng bắt buộc
-#	Chức năng	Mô tả chi tiết
-1	🎞️ Tra cứu suất chiếu	Liệt kê mã suất, tên phim, giờ chiếu, số ghế trống; chọn suất theo mã
-2	💺 Sơ đồ ghế	Hiển thị mã ghế, loại ghế, trạng thái trống/đã đặt theo từng suất, có chú thích ký hiệu
-3	🎟️ Đặt vé	Nhập tên người đặt + nhiều ghế, kiểm tra toàn bộ, báo giá, chỉ tạo vé khi xác nhận
-4	🔍 Tra cứu vé	Tìm theo mã vé: người đặt, mã lần đặt, suất, ghế, đơn giá lúc đặt, trạng thái
-5	❌ Hủy vé	Xác nhận hủy, giải phóng ghế đúng suất, hoàn tiền mô phỏng 100%
-6	📊 Thống kê	Vé còn hiệu lực, ghế trống, tổng tiền, tổng hoàn, số tiền còn lại
-7	💾 Lưu và nạp file	Giữ dữ liệu suất, ghế, đặt vé, trạng thái hủy qua các lần chạy
+### ⚙️ Chức năng bắt buộc
+
+| # | Chức năng | Mô tả chi tiết |
+|:---:|:---|:---|
+| 1 | 🎞️ **Tra cứu suất chiếu** | Liệt kê mã suất, tên phim, giờ chiếu, số ghế trống; chọn suất theo mã |
+| 2 | 💺 **Sơ đồ ghế** | Hiển thị mã ghế, loại ghế, trạng thái trống/đã đặt theo từng suất, có chú thích ký hiệu |
+| 3 | 🎟️ **Đặt vé** | Nhập tên người đặt + nhiều ghế, kiểm tra toàn bộ, báo giá, chỉ tạo vé khi xác nhận |
+| 4 | 🔍 **Tra cứu vé** | Tìm theo mã vé: người đặt, mã lần đặt, suất, ghế, đơn giá lúc đặt, trạng thái |
+| 5 | ❌ **Hủy vé** | Xác nhận hủy, giải phóng ghế đúng suất, hoàn tiền mô phỏng 100% |
+| 6 | 📊 **Thống kê** | Vé còn hiệu lực, ghế trống, tổng tiền, tổng hoàn, số tiền còn lại |
+| 7 | 💾 **Lưu và nạp file** | Giữ dữ liệu suất, ghế, đặt vé, trạng thái hủy qua các lần chạy |
