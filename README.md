@@ -56,16 +56,22 @@
 | 16 | 🤖 [Minh bạch AI và giới hạn còn lại](#-minh-bạch-ai-và-giới-hạn-còn-lại) |
 | 17 | 🏁 [Kết luận](#-kết-luận) |
 
-🌐 Tổng quan hệ thống
+## 🌐 Tổng quan hệ thống
 
-Chương trình console giúp nhân viên một rạp phim nhỏ xem suất chiếu, kiểm tra ghế trống, đặt vé và hủy vé, đồng thời bảo đảm không bán hai vé còn hiệu lực cho cùng một ghế trong cùng một suất chiếu.
+> 🎯 **Mục tiêu:** Chương trình console giúp nhân viên một rạp phim nhỏ **xem suất chiếu, kiểm tra ghế trống, đặt vé và hủy vé**, đồng thời bảo đảm **không bán hai vé còn hiệu lực cho cùng một ghế trong cùng một suất chiếu**.
 
-Phạm vi:
+### 📌 Phạm vi hệ thống
 
-Một rạp, một phòng chiếu 4 hàng × 5 ghế (A1–D5, 20 ghế).
-Hai loại ghế: Standard (hàng A, B, C) và VIP (hàng D).
-Danh sách nhỏ các suất chiếu mẫu (SC01, SC02).
-Không có GUI, database, đăng nhập, thanh toán thật, nhiều phòng hay giá theo ngày lễ.
+| Hạng mục | ✅ Có trong hệ thống | 🚫 Ngoài phạm vi |
+|:---|:---|:---|
+| 🏢 **Rạp / phòng chiếu** | Một rạp, một phòng **4 hàng × 5 ghế** (A1–D5, 20 ghế) | Nhiều rạp, nhiều phòng |
+| 💺 **Loại ghế** | **Standard** (hàng A, B, C) và **VIP** (hàng D) | Thêm loại ghế khác |
+| 🎞️ **Suất chiếu** | Danh sách nhỏ suất chiếu mẫu (SC01, SC02) | Quản lý lịch chiếu động |
+| 💰 **Giá vé** | Giá cố định theo loại ghế | Giá theo ngày lễ, giảm giá |
+| 🖥️ **Giao diện** | Console (menu văn bản) | GUI, web |
+| 🗄️ **Dữ liệu** | Lưu/nạp bằng file | Cơ sở dữ liệu |
+| 🔐 **Người dùng** | Nhân viên quầy vé | Đăng nhập, thanh toán thật |
+
 ### ⚙️ Chức năng bắt buộc
 
 | # | Chức năng | Mô tả chi tiết |
