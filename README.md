@@ -806,3 +806,80 @@ StandardSeat  VipSeat
 | Aggregation | `◇` | `Showtime` — `Seat` |
 | Association | `──►` | `Ticket` → `TicketStatus`, `Seat`, `Showtime`; `Booking` → `Showtime` |
 | Dependency | `- - ►` | `Menu` → `BookingService`; `BookingService` ↔ `DataStore` |
+## 🎯 Đa hình và Dynamic Dispatch
+
+Đề yêu cầu có **ít nhất một chỗ dùng đa hình thật** trong luồng chạy chính. Hệ thống dùng đa hình ở bước **báo giá khi đặt vé**.
+
+### 🧬 8.1. Cấu trúc đa hình
+
+```text
+Seat  «abstract»
+ │   + calculatePrice() : long   {abstract}
+ │
+ ├── StandardSeat
+ │     + calculatePrice() : long   → 70.000
+ │
+ └── VipSeat
+       + calculatePrice() : long   → 100.000
+```
+
+| Thành phần | Vai trò |
+|:---|:---|
+| `Seat` | Lớp trừu tượng, khai báo `calculatePrice()` nhưng không cài đặt |
+| `StandardSeat` | **Override** `calculatePrice()` trả về **70.000** |
+| `VipSeat` | **Override** `calculatePrice()` trả về **100.000** |
+
+### 💡 8.2. Ví dụ minh họa
+
+```java
+// Tham chiếu kiểu Seat, đối tượng thật là StandardSeat hoặc VipSeat
+long total = 0;
+for (Seat seat : selectedSeats) {
+    total += seat.calculatePrice();   // dynamic dispatch
+}
+```
+
+Khi nhân viên đặt `A1` và `D1` ở SC01:
+
+```text
+selectedSeats = [ A1 (StandardSeat), D1 (VipSeat) ]
+
+seat = A1  →  gọi StandardSeat.calculatePrice()  →  70.000
+seat = D1  →  gọi VipSeat.calculatePrice()       →  100.000
+
+Tổng = 170.000
+```
+
+### ⚙️ 8.3. Dynamic Dispatch hoạt động thế nào
+
+```text
+Seat seat = ...;            ← kiểu khai báo (lúc biên dịch): Seat
+seat.calculatePrice();      ← JVM xem kiểu THẬT của đối tượng lúc chạy
+        │
+        ├── đối tượng là StandardSeat → chạy StandardSeat.calculatePrice()
+        └── đối tượng là VipSeat      → chạy VipSeat.calculatePrice()
+```
+
+> [!IMPORTANT]
+> Chương trình **không** dùng chuỗi `if/else` hay `switch` theo loại ghế ở `Menu` hay `BookingService`. Phương thức nào chạy do **kiểu thật của đối tượng** quyết định.
+
+### 📍 8.4. Vị trí gọi đa hình trong code
+
+| Hạng mục | Nội dung |
+|:---|:---|
+| **File** | `src/.../BookingService.java` _(điền đường dẫn thật)_ |
+| **Phương thức** | `calculateTotal(...)` _(điền tên thật)_ |
+| **Dòng code** | Dòng `___` _(điền số dòng thật)_ |
+| **Lời gọi** | `seat.calculatePrice()` với `seat` có kiểu khai báo `Seat` |
+
+### ➕ 8.5. Lợi ích khi mở rộng
+
+```text
+Muốn thêm loại ghế mới (ví dụ CoupleSeat):
+ 1. Tạo lớp CoupleSeat extends Seat
+ 2. Override calculatePrice()
+ 3. Không cần sửa code báo giá ở Menu hay BookingService
+```
+
+> [!NOTE]
+> Đây cũng là một trong các phần mở rộng tùy chọn của đề: thêm loại ghế mới bằng kế thừa mà không sửa logic báo giá.
