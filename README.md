@@ -301,3 +301,85 @@ Thoát     → Ghi toàn bộ suất, ghế, Booking, Ticket, trạng thái hủ
 
 > [!IMPORTANT]
 > Sau khi lưu rồi mở lại, mọi trạng thái phải khôi phục đầy đủ: vé nào đã hủy, ghế nào đã đặt, đơn giá lúc đặt và các số tiền. Mã Booking và mã vé mới **không được trùng** với mã đã có.
+
+## 📏 Quy tắc nghiệp vụ
+
+Các quy tắc dưới đây được chia thành 5 nhóm. Mọi chức năng của chương trình đều phải tuân theo.
+
+| Nhóm | Nội dung |
+|:---|:---|
+| 💺 **Ghế và giá vé** | Mã ghế, loại ghế, bảng giá |
+| 🎞️ **Suất chiếu** | Trạng thái ghế theo từng suất |
+| 🎟️ **Đặt vé** | Điều kiện hợp lệ, xác nhận, mã không trùng |
+| ❌ **Hủy vé** | Điều kiện hủy, hoàn tiền mô phỏng |
+| 💾 **Lưu trữ và tiền tệ** | Nạp/ghi file, kiểu dữ liệu tiền |
+
+### 💺 4.1. Ghế và giá vé
+
+| Loại ghế | Hàng | Mã ghế | Đơn giá |
+|:---:|:---:|:---:|---:|
+| 🟦 **Standard** | A, B, C | A1–C5 (15 ghế) | **70.000 đ** |
+| 🟨 **VIP** | D | D1–D5 (5 ghế) | **100.000 đ** |
+
+- Mã ghế có dạng **hàng + số**, từ **A1 đến D5** (4 hàng × 5 ghế = 20 ghế).
+- Nhập chữ thường (ví dụ `a1`) vẫn được và được **chuẩn hóa thành chữ hoa**.
+- Giá chỉ phụ thuộc loại ghế, **không** có thuế, phụ phí hay giảm giá.
+
+### 🎞️ 4.2. Trạng thái ghế theo suất
+
+> [!IMPORTANT]
+> Trạng thái ghế được xác định theo cặp **mã suất + mã ghế**, không lưu cờ `booked` dùng chung cho cả phòng.
+
+| Trường hợp | Kết quả |
+|:---|:---|
+| A1 ở **SC01** đã đặt | A1 ở **SC02** vẫn đặt được |
+| Có đúng 1 vé `ACTIVE` giữ ghế trong suất | Ghế hiển thị **Đã đặt** |
+| Không có vé `ACTIVE` nào giữ ghế trong suất | Ghế hiển thị **Trống** |
+
+### 🎟️ 4.3. Quy tắc đặt vé
+
+| # | Quy tắc |
+|:---:|:---|
+| 1 | Danh sách ghế phải có **ít nhất 1 ghế**. |
+| 2 | Không được có mã ghế **lặp** trong cùng một lần đặt. |
+| 3 | Mã ghế phải **nằm trong sơ đồ** (A1–D5). |
+| 4 | Không được chọn ghế đang bị vé `ACTIVE` giữ trong suất đó. |
+| 5 | Tên người đặt **không rỗng** sau khi `trim()`. |
+| 6 | Phải **kiểm tra toàn bộ** danh sách trước khi tạo bất kỳ vé nào. |
+| 7 | Nhân viên **không xác nhận** thì không tạo Booking, không tạo vé, không giữ chỗ. |
+| 8 | Mã Booking và mã vé **không được trùng**, kể cả sau khi nạp file hoặc khi vé cũ đã hủy. |
+| 9 | Mỗi vé lưu **đơn giá tại lúc đặt**; tra cứu, thống kê và hủy đều dùng giá đã lưu. |
+
+> [!WARNING]
+> Chỉ cần một ghế sai (không tồn tại, bị lặp hoặc đã có người giữ) thì **từ chối cả lần đặt**, không tạo vé một phần.
+
+### ❌ 4.4. Quy tắc hủy vé
+
+| # | Quy tắc |
+|:---:|:---|
+| 1 | Chỉ hủy được vé có `status = ACTIVE`. |
+| 2 | Hủy lần hai bị **từ chối**. |
+| 3 | Hủy theo mã vé chỉ hủy **ghế trên vé đó**; các vé khác trong cùng Booking giữ nguyên. |
+| 4 | Hoàn tiền mô phỏng **100% đơn giá đã lưu trên vé**, không tính lại theo bảng giá hiện tại. |
+| 5 | Vé đã hủy vẫn được **giữ lại** để tra cứu với trạng thái `CANCELLED`. |
+| 6 | Hủy một vé cũ **không** giải phóng ghế của vé mới đã đặt lại cùng ghế đó. |
+
+#### 💡 Ví dụ
+
+```text
+V1 = A1, SC01, 70.000 → đã hủy (CANCELLED)
+Đặt lại A1 ở SC01 → tạo V4 (ACTIVE)
+Thử hủy V1 lần nữa → TỪ CHỐI, A1 của V4 vẫn giữ nguyên
+```
+
+### 💾 4.5. Lưu trữ và tiền tệ
+
+| # | Quy tắc |
+|:---:|:---|
+| 1 | Lần chạy đầu chưa có file thì dùng **dữ liệu mẫu**; nếu đã có dữ liệu thì **không** nạp mẫu đè lên. |
+| 2 | File dữ liệu **hỏng** phải báo lỗi rõ ràng, **không** thay bằng dữ liệu rỗng rồi ghi đè file cũ. |
+| 3 | Sau khi lưu rồi mở lại, mọi trạng thái phải **khôi phục đầy đủ**. |
+| 4 | Tiền tính bằng kiểu **`long`**, đơn vị là **đồng**. |
+
+> [!NOTE]
+> Nhập sai (mã suất, mã vé không tồn tại; tên chỉ có khoảng trắng; chọn menu sai) thì chương trình **báo lỗi, không đổi dữ liệu và menu vẫn dùng tiếp**.
