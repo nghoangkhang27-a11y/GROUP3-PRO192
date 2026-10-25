@@ -1,64 +1,66 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.movieticketandseatmanagement;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- *
- * @author ASUS
- */
-
 public class RoomManager {
-    
-    // Danh sách suất chiếu mẫu
-    private List<String> showtimes = new ArrayList<>();
-    
-    // Danh sách 20 ghế trong phòng (4 hàng x 5 cột)
-    private String[] allSeats = {
-        "A1", "A2", "A3", "A4", "A5",
-        "B1", "B2", "B3", "B4", "B5",
-        "C1", "C2", "C3", "C4", "C5",
-        "D1", "D2", "D3", "D4", "D5"
-    };
+    private List<Showtime> showtimes = new ArrayList<>();
 
     public RoomManager() {
-        // Khởi tạo thông tin suất chiếu mẫu
-        showtimes.add("SC01 | Phim: Mai | Gio chieu: 18:00");
-        showtimes.add("SC02 | Phim: Kung Fu Panda 4 | Gio chieu: 20:30");
+        showtimes.add(new Showtime("SC01", "Mat ma Java", "09:00"));
+        showtimes.add(new Showtime("SC02", "Mat ma Java", "14:00"));
     }
 
-    // Tra cứu suất chiếu
+    public Showtime findShowtime(String showtimeId) {
+        for (Showtime st : showtimes) {
+            if (st.getShowtimeId().equalsIgnoreCase(showtimeId.trim())) {
+                return st;
+            }
+        }
+        return null;
+    }
+
+    // Tra cứu danh sách suất chiếu (Mã suất, tên phim, giờ chiếu, số ghế trống)
     public void displayShowtimes() {
         System.out.println("\n========== DANH SACH SUAT CHIEU ==========");
-        for (String st : showtimes) {
-            System.out.println(st);
+        for (Showtime st : showtimes) {
+            int availableSeats = 20 - st.getBookedSeatIds().size();
+            System.out.println("Ma suat: " + st.getShowtimeId() + " | Phim: " + st.getMovieTitle() + " | Gio: " + st.getStartTime() + " | Ghe trong: " + availableSeats + "/20");
         }
         System.out.println("------------------------------------------");
     }
 
-    // Hiển thị sơ đồ phòng chiếu (không cần truyền tham số)
-    public void displaySeatMap() {
-        System.out.println("\n============== SO DO PHONG CHIEU (4x5) ==============");
-        System.out.println("                [ MAN HINH CHIEU ]                  ");
-        System.out.println("-----------------------------------------------------");
+    // Hiển thị sơ đồ ghế của suất (Trống [A1] / Đã đặt [X])
+    public void displaySeatMap(String showtimeId) {
+        Showtime st = findShowtime(showtimeId);
+        if (st == null) {
+            System.out.println("Suat chieu khong ton tai!");
+            return;
+        }
 
-        for (int i = 0; i < allSeats.length; i++) {
-            System.out.print("[" + allSeats[i] + "] ");
-            
-            // Cứ đủ 5 ghế (1 hàng) thì xuống dòng và phân loại Standard / VIP
-            if ((i + 1) % 5 == 0) {
-                if (i < 15) {
-                    System.out.println("  <- Hang Thuong (Standard)");
+        System.out.println("\n============== SO DO PHONG CHIEU (" + st.getShowtimeId() + ") ==============");
+        System.out.println("                [ MAN HINH CHIEU ]                  ");
+        System.out.println("---------------------------------------------------------");
+        System.out.println("          1       2       3       4       5");
+
+        char[] rowNames = {'A', 'B', 'C', 'D'};
+        for (char r : rowNames) {
+            System.out.print("    " + r + "   ");
+            for (int i = 1; i <= 5; i++) {
+                String sId = r + "" + i;
+                if (st.isSeatBooked(sId)) {
+                    System.out.print("[ X ]   ");
                 } else {
-                    System.out.println("  <- Hang VIP");
+                    System.out.print("[" + sId + "]   ");
                 }
             }
+            if (r == 'D') {
+                System.out.println("  <- Hang VIP (100.000d)");
+            } else {
+                System.out.println("  <- Hang Standard (70.000d)");
+            }
         }
-        System.out.println("-----------------------------------------------------");
-        System.out.println("Ghi chu: Hang A, B, C (Standard) | Hang D (VIP)\n");
+        System.out.println("---------------------------------------------------------");
+        System.out.println("Chu thich: [ MaGhe ] = Trong  |  [ X ] = Da duoc dat\n");
     }
 }

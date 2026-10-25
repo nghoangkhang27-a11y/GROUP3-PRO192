@@ -13,43 +13,47 @@ import java.util.Scanner;
  */
 public class MovieTicketandSeatManagement {
 
-    public static void main(String[] args) {
-        try {
-            System.setOut(new java.io.PrintStream(System.out, true, "UTF-8"));
-        } catch (Exception e) {
-        }
+   public static void main(String[] args) {
         RoomManager manager = new RoomManager();
         Scanner scanner = new Scanner(System.in);
-        List<String> bookedSeats = new ArrayList<>();
         int choice = -1;
+
         do {
-            System.out.println("\n================ QUAN LY VE XEM PHIM ================");
-            System.out.println("1. Xem danh sach suat chieu");
-            System.out.println("2. Xem so do phong chieu");
+            System.out.println("\n========== QUAN LY SUAT CHIEU & SO DO GHE ==========");
+            System.out.println("1. Xem danh sach suat chieu ");
+            System.out.println("2. Xem so do phong chieu theo ma suat");
             System.out.println("0. Thoat chuong trinh");
-            System.out.println("-> Nhap lua chon cua ban: ");
+            System.out.print("-> Nhap lua chon cua ban: ");
 
             if (scanner.hasNextInt()) {
                 choice = scanner.nextInt();
-                scanner.nextLine();
+                scanner.nextLine(); // Đọc bỏ ký tự xuống dòng
             } else {
-                System.out.println("Vui long nhap so hop le!");
+                System.out.println("Vui long chi nhap so hop le!");
                 scanner.nextLine();
                 continue;
             }
+
             switch (choice) {
                 case 1:
+                    // Tra cứu danh sách suất chiếu[cite: 4, 7]
                     manager.displayShowtimes();
                     break;
+
                 case 2:
-                    manager.displaySeatMap();
+                    // Xem sơ đồ ghế theo mã suất[cite: 4, 10]
+                    System.out.print("Nhap ma suat chieu: ");
+                    String stId = scanner.nextLine().trim();
+                    manager.displaySeatMap(stId);
                     break;
+
                 case 0:
-                    System.out.println("Cam on ban da su dung chuong trinh. Hen gap lai!");
+                    System.out.println("Tam biet! Cam on ban da su dung chuong trinh.");
                     break;
+
                 default:
-                    System.out.println("Lua chon khong hop le. Vui long nhap lai!");
+                    System.out.println("Lua chon khong hop le! Vui long chon 1, 2 hoac 0.");
             }
         } while (choice != 0);
-    }
+}
 }

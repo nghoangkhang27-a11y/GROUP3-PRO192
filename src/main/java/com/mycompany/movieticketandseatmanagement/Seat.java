@@ -8,23 +8,24 @@ package com.mycompany.movieticketandseatmanagement;
  *
  * @author ASUS
  */
-public class Seat { // Lớp quản lý ghế
+public abstract class Seat { // Lớp quản lý ghế
     private String seatId; // Mã số ghế
-    private String type; // loại ghê: thường và VIP
-    private double price; // giá ghế
+    private char row;
+    private int number; // giá ghế
 
-    public Seat(String seatId, String type, double price) {
+    public Seat(String seatId) {
         this.seatId = seatId;
-        this.type = type;
-        this.price = price;
+        this.row = this.seatId.charAt(0);
+        this.number = Integer.parseInt(this.seatId.substring(1));
     }
+    public abstract long calculatePrice();
     public String getSeatId(){
         return seatId;
     }
-    public String getType(){
-        return type;
+    public char getRow(){
+        return row;
     }
-    public double getPrice(){
-        return price;
+    public int getNumber(){
+        return number;
     }
 }

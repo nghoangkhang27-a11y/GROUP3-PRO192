@@ -1,36 +1,58 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.movieticketandseatmanagement;
 
-/**
- *
- * @author ASUS
- */
-public class Showtime { //Lớp quản lý suất chiếu
-    private String showTimeId; // Mã xuất chiếu
-    private String movieName; // Tên phim
-    private String time; // Giờ chiếu
+import java.util.ArrayList;
+import java.util.List;
 
-    public Showtime(String showtimeId, String movieName, String time) {
-        this.showTimeId = showtimeId;
-        this.movieName = movieName;
-        this.time = time;
+public class Showtime {
+    private String showtimeId;
+    private String movieTitle;
+    private String startTime;
+    private List<Seat> seats;
+    private List<String> bookedSeatIds; // Lưu vết ghế đã đặt để hiện sơ đồ [X]
+
+    public Showtime(String showtimeId, String movieTitle, String startTime) {
+        this.showtimeId = showtimeId;
+        this.movieTitle = movieTitle;
+        this.startTime = startTime;
+        this.seats = new ArrayList<>();
+        this.bookedSeatIds = new ArrayList<>();
+        initializeSeats();
     }
 
-    public String getShowtimeId() {
-        return showTimeId;
+    private void initializeSeats() {
+        String[] rows = {"A", "B", "C", "D"};
+        for (String r : rows) {
+            for (int i = 1; i <= 5; i++) {
+                String sId = r + i;
+                if (r.equals("D")) {
+                    seats.add(new VipSeat(sId));
+                } else {
+                    seats.add(new StandardSeat(sId));
+                }
+            }
+        }
     }
 
-    public String getMovieName() {
-        return movieName;
+    public boolean isSeatBooked(String seatId) {
+        for (String id : bookedSeatIds) {
+            if (id.equalsIgnoreCase(seatId)) return true;
+        }
+        return false;
     }
 
-    public String getTime() {
-        return time;
+    public void addBookedSeat(String seatId) {
+        if (!isSeatBooked(seatId)) {
+            bookedSeatIds.add(seatId.toUpperCase());
+        }
     }
-    public void displayShowTimeInfo(int availableSeatsCount){
-        System.out.printf("Ma suat: %-6s | Phim: %-25s | Gio: %-8s | Ghe trong: %d/20\n", showTimeId, movieName, time, availableSeatsCount);
+
+    public String getShowtimeId() { return showtimeId; }
+    public String getMovieTitle() { return movieTitle; }
+    public String getStartTime() { return startTime; }
+    public List<Seat> getSeats() { return seats; }
+    public List<String> getBookedSeatIds() { return bookedSeatIds; }
+
+    Object findSeat(String seatId) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 }
