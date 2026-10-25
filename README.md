@@ -528,3 +528,175 @@ Lưu và nạp dữ liệu
 | 🎟️ **Đặt vé** | Kiểm tra toàn bộ danh sách ghế, Xác nhận giá, Tạo Booking + Ticket | Kiểm tra xong toàn bộ mới tạo vé |
 | ❌ **Hủy vé** | Xác nhận hủy, Giải phóng ghế + hoàn tiền mô phỏng | Chỉ hủy được vé `ACTIVE` |
 | 💾 **Lưu và nạp dữ liệu** | Nạp dữ liệu mẫu, Ghi dữ liệu ra file | Có dữ liệu thì không nạp mẫu đè lên |
+## 🧩 Class Diagram
+
+Hệ thống gồm **10 lớp**, chia thành 4 nhóm: mô hình dữ liệu, nghiệp vụ, lưu trữ và giao diện.
+
+---
+
+### 💺 6.1. Seat
+
+```text
+Seat  «abstract»
+---------------------------------------------
+- seatId : String
+- row : char
+- number : int
+---------------------------------------------
++ calculatePrice() : long   {abstract}
++ getSeatId() : String
++ getRow() : char
++ getNumber() : int
+```
+
+> [!NOTE]
+> `Seat` là lớp trừu tượng. Giá được tính ở hai lớp con bằng cách **override** `calculatePrice()`.
+
+---
+
+### 🟦 6.2. StandardSeat
+
+```text
+StandardSeat  extends Seat
+---------------------------------------------
+(kế thừa toàn bộ thuộc tính của Seat)
+---------------------------------------------
++ calculatePrice() : long      → 70.000
+```
+
+---
+
+### 🟨 6.3. VipSeat
+
+```text
+VipSeat  extends Seat
+---------------------------------------------
+(kế thừa toàn bộ thuộc tính của Seat)
+---------------------------------------------
++ calculatePrice() : long      → 100.000
+```
+
+> [!IMPORTANT]
+> Khi báo giá, chương trình duyệt danh sách theo kiểu `Seat` và gọi `calculatePrice()`, **không** dùng `if/switch` theo loại ghế.
+
+---
+
+### 🎞️ 6.4. Showtime
+
+```text
+Showtime
+---------------------------------------------
+- showtimeId : String
+- movieTitle : String
+- startTime : String
+- seats : List<Seat>
+---------------------------------------------
++ getShowtimeId() : String
++ getMovieTitle() : String
++ getStartTime() : String
++ findSeat(seatId : String) : Seat
+```
+
+---
+
+### 🧾 6.5. Booking
+
+```text
+Booking
+---------------------------------------------
+- bookingId : String
+- customerName : String
+- showtimeId : String
+- tickets : List<Ticket>
+---------------------------------------------
++ addTicket(ticket : Ticket) : void
++ getTotalAmount() : long
++ getTickets() : List<Ticket>
+```
+
+---
+
+### 🎟️ 6.6. Ticket
+
+```text
+Ticket
+---------------------------------------------
+- ticketId : String
+- bookingId : String
+- showtimeId : String
+- seatId : String
+- priceAtBooking : long
+- status : TicketStatus
+---------------------------------------------
++ cancel() : void
++ isActive() : boolean
++ getRefundAmount() : long
++ getters ...
+```
+
+> [!NOTE]
+> `priceAtBooking` là đơn giá **tại lúc đặt**. Tra cứu, thống kê và hoàn tiền đều dùng giá này, không tính lại theo bảng giá hiện tại.
+
+---
+
+### 🔖 6.7. TicketStatus
+
+```text
+TicketStatus  «enumeration»
+---------------------------------------------
+ACTIVE
+CANCELLED
+```
+
+---
+
+### ⚙️ 6.8. BookingService
+
+```text
+BookingService
+---------------------------------------------
+- showtimes : List<Showtime>
+- bookings : List<Booking>
+- tickets : List<Ticket>
+---------------------------------------------
++ isSeatBooked(showtimeId, seatId) : boolean
++ validateSeats(showtimeId, seatIds) : void
++ calculateTotal(showtimeId, seatIds) : long
++ createBooking(name, showtimeId, seatIds) : Booking
++ findTicket(ticketId : String) : Ticket
++ cancelTicket(ticketId : String) : long
++ getStatistics(showtimeId : String) : Statistics
+```
+
+> [!IMPORTANT]
+> Mọi quy tắc nghiệp vụ (kiểm tra ghế, tạo vé, hủy vé, thống kê) nằm ở `BookingService`, **không** đặt trong `Menu`.
+
+---
+
+### 💾 6.9. DataStore
+
+```text
+DataStore
+---------------------------------------------
+- filePath : String
+---------------------------------------------
++ save(service : BookingService) : void
++ load() : BookingService
+```
+
+---
+
+### 🖥️ 6.10. Menu
+
+```text
+Menu
+---------------------------------------------
+- service : BookingService
+- scanner : Scanner
+---------------------------------------------
++ run() : void
++ showMenu() : void
+```
+
+> [!NOTE]
+> `Menu` chỉ nhận dữ liệu nhập và hiển thị kết quả, không chứa nghiệp vụ.
