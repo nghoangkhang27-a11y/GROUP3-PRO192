@@ -1216,3 +1216,92 @@ THOÁT
 | Thư viện | Chỉ dùng Java SE chuẩn (`ArrayList`, `HashMap`, `java.time`, I/O) |
 | Lưu trữ | File trong thư mục `data/`, đường dẫn tương đối |
 | Quản lý mã | Git, repo GitHub |
+## 📁 Cấu trúc thư mục và file dữ liệu
+
+### 🌳 13.1. Cấu trúc repository
+
+```text
+FPTU-FA26-PRO192-SE21B-GroupXX/
+ │
+ ├── 📂 src/
+ │     └── main/java/...            ← mã nguồn Java (Model, Service, Data, UI)
+ │
+ ├── 📂 data/                       ← file dữ liệu lưu/nạp (đường dẫn tương đối)
+ │     ├── showtimes.txt
+ │     ├── bookings.txt
+ │     └── tickets.txt
+ │
+ ├── 📂 dist/                       ← file JAR chạy được
+ │     └── MovieTicketandSeatManagement.jar
+ │
+ ├── 📂 docs/
+ │     ├── 📂 ai_logs/
+ │     │     └── AI_INTERACTION_LOG.md   ← nhật ký sử dụng AI
+ │     ├── 📂 diagrams/                  ← sơ đồ (nếu có ảnh)
+ │     └── test_cases.md                 ← bảng kiểm thử chi tiết
+ │
+ ├── 📄 pom.xml                     ← cấu hình project (JDK 8)
+ ├── 📄 .gitignore
+ ├── 📄 report.pdf                  ← báo cáo PDF ngắn
+ └── 📄 README.md
+```
+
+> [!NOTE]
+> Tên file trong `data/` và vị trí thư mục `dist/` là gợi ý. Bạn sửa cho khớp với project thật của nhóm.
+
+### 📋 13.2. Vai trò từng thư mục
+
+| Thư mục / File | Nội dung | Bắt buộc |
+|:---|:---|:---:|
+| 📂 `src/` | Mã nguồn Java của chương trình | ✅ |
+| 📂 `data/` | Dữ liệu lưu giữa các lần chạy và dữ liệu mẫu | ✅ |
+| 📂 `dist/` | File **JAR** tạo từ bản mã nguồn đã nộp | ✅ |
+| 📂 `docs/ai_logs/` | `AI_INTERACTION_LOG.md`: các lần dùng AI quan trọng | ✅ |
+| 📂 `docs/diagrams/` | Ảnh sơ đồ (Use Case, Class Diagram) nếu có | ⬜ |
+| 📄 `docs/test_cases.md` | Bảng kiểm thử chi tiết có kết quả thực tế | ✅ |
+| 📄 `pom.xml` | Cấu hình build, **Java 8** | ✅ |
+| 📄 `README.md` | Tài liệu mô tả project | ✅ |
+| 📄 `report.pdf` | Báo cáo PDF ngắn | ✅ |
+
+### 🗄️ 13.3. Các file dữ liệu
+
+| File | Nội dung | Các trường chính |
+|:---|:---|:---|
+| 📄 `data/showtimes.txt` | Suất chiếu | mã suất, tên phim, giờ chiếu |
+| 📄 `data/bookings.txt` | Các lần đặt | mã đặt, tên người đặt, mã suất |
+| 📄 `data/tickets.txt` | Các vé | mã vé, mã đặt, mã suất, mã ghế, **đơn giá lúc đặt**, trạng thái |
+
+```text
+Sơ đồ ghế 4 × 5 (A1–D5): KHÔNG lưu, dựng lại từ quy tắc cố định.
+Trạng thái ghế (trống / đã đặt): KHÔNG lưu, suy ra từ các vé ACTIVE.
+```
+
+> [!IMPORTANT]
+> Chương trình dùng **đường dẫn tương đối** (`data/...`) để chạy được trên máy khác. Không dùng đường dẫn kiểu `C:\Users\...`.
+
+### 🔄 13.4. Vòng đời file dữ liệu
+
+```text
+Lần chạy đầu    : thư mục data/ chưa có file → nạp dữ liệu mẫu
+Đang chạy       : thao tác trong bộ nhớ
+Thoát chương trình : ghi toàn bộ dữ liệu ra data/
+Lần chạy sau    : đọc lại từ data/, KHÔNG nạp mẫu đè lên
+Muốn reset      : xóa thư mục data/ rồi chạy lại
+```
+
+### 🙈 13.5. Những gì không đưa lên GitHub
+
+```text
+# .gitignore
+target/
+build/
+nbproject/private/
+```
+
+| Mục bỏ qua | Lý do |
+|:---|:---|
+| `target/`, `build/` | File sinh ra khi build, tạo lại được |
+| `nbproject/private/` | Cấu hình riêng của từng máy |
+
+> [!WARNING]
+> Nếu bỏ qua `target/`, hãy **copy file JAR** sang thư mục `dist/` rồi commit, vì đề yêu cầu nộp kèm file JAR.
