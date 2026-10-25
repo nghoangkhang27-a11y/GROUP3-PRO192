@@ -41,7 +41,7 @@ public class RoomManager {
         System.out.println("\n============== SO DO PHONG CHIEU (" + st.getShowtimeId() + ") ==============");
         System.out.println("                [ MAN HINH CHIEU ]                  ");
         System.out.println("---------------------------------------------------------");
-        System.out.println("          1       2       3       4       5");
+        System.out.println("         1      2      3      4      5");
 
         char[] rowNames = {'A', 'B', 'C', 'D'};
         for (char r : rowNames) {
