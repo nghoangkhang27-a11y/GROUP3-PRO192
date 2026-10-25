@@ -1069,3 +1069,36 @@ SC01: còn 18 ghế                       SC02: còn 19 ghế
 
 > [!IMPORTANT]
 > Ghế A1 xuất hiện ở cả hai suất nhưng là **hai vé khác nhau** (V1 và V3), vì ghế được xét theo cặp **mã suất + mã ghế**.
+## ✅ Kịch bản nghiệm thu
+
+> [!IMPORTANT]
+> Bảng dưới ghi **kết quả mong đợi** theo đề, chưa phải kết quả đã chạy. Các ca chạy **liên tiếp theo thứ tự** trên cùng bộ dữ liệu mẫu. Mã vé `V1` đến `V4` là ví dụ, nhóm ghi mã vé thật mà chương trình sinh ra.
+
+### 🧪 11.1. 12 ca nghiệm thu bắt buộc
+
+| Ca | Thao tác | Kết quả mong đợi |
+|:---:|:---|:---|
+| **1** | Xem SC01 và SC02 khi mới tạo mẫu | Mỗi suất còn **20 ghế**; số vé và các tổng tiền đều bằng 0 |
+| **2** | An đặt **A1, D1** ở SC01 rồi xác nhận | 1 lần đặt, 2 vé: **V1/A1 = 70.000**, **V2/D1 = 100.000**; tổng **170.000**; SC01 còn **18** ghế; giá được tính qua kiểu `Seat` |
+| **3** | Đặt **A2 và A1** ở SC01 | **Từ chối cả lần đặt** vì A1 đang được giữ; A2 vẫn trống; SC01 vẫn có 2 vé hiệu lực, 170.000 đ |
+| **4** | Đặt **A2 và E1** ở SC01 | Từ chối vì **E1 không tồn tại**; A2 vẫn trống; không tạo lần đặt hoặc vé mới |
+| **5** | Đặt **A2 và A2** ở SC01 | Từ chối **mã ghế lặp**; A2 vẫn trống; số vé và tổng tiền không đổi |
+| **6** | Đặt **A2** ở SC01 nhưng **không xác nhận** | Không tạo vé; A2 vẫn trống; SC01 còn **18** ghế |
+| **7** | Bình đặt **A1** ở SC02 và xác nhận | Tạo **V3 = 70.000**; SC02 còn **19** ghế; SC01 vẫn còn 18 ghế và 170.000 đ |
+| **8** | **Hủy V1** của SC01 và xác nhận | V1 thành đã hủy; hoàn mô phỏng **70.000**; A1/SC01 trống, SC01 còn **19** ghế; V2, V3 vẫn hiệu lực; gốc SC01 **170.000**, hoàn **70.000**, còn lại **100.000** |
+| **9** | **Hủy lại V1** | Từ chối vì vé đã hủy; tổng hoàn vẫn 70.000; số ghế trống không đổi |
+| **10** | Đặt lại **A1** ở SC01 (tạo **V4**); thử hủy V1 | V4 = 70.000 hiệu lực; SC01 còn **18** ghế; hủy V1 vẫn bị từ chối, A1 **không** bị giải phóng; gốc **240.000**, hoàn **70.000**, còn lại **170.000** |
+| **11** | **Lưu, thoát, mở lại**; tra V1–V4; thử đặt A1/SC01 | V1 vẫn đã hủy; V2, V3, V4 vẫn hiệu lực; đặt A1/SC01 bị từ chối; SC01 còn **18**, SC02 còn **19**; mọi số tiền giữ nguyên |
+| **12** | Nhập **mã suất, mã vé không tồn tại** hoặc **tên chỉ có khoảng trắng** | Báo đúng lỗi, không tạo/hủy dữ liệu, vẫn tiếp tục dùng menu được |
+
+### 📊 11.2. Trạng thái vé sau các ca chính
+
+```text
+Sau ca 2:   V1 = A1/SC01  70.000   ACTIVE
+            V2 = D1/SC01  100.000  ACTIVE          SC01: 18 ghế trống
+
+Sau ca 7:   V3 = A1/SC02  70.000   ACTIVE          SC02: 19 ghế trống
+
+Sau ca 8:   V1 = CANCELLED (hoàn 70.000)           SC01: 19 ghế trống
+
+Sau ca 10:  V4 = A1/SC01  70.000   ACTIVE          SC01:
