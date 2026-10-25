@@ -883,3 +883,108 @@ Muốn thêm loại ghế mới (ví dụ CoupleSeat):
 
 > [!NOTE]
 > Đây cũng là một trong các phần mở rộng tùy chọn của đề: thêm loại ghế mới bằng kế thừa mà không sửa logic báo giá.
+## 🗄️ Tầng lưu trữ dữ liệu
+
+Hệ thống lưu dữ liệu ra file để **giữ nguyên trạng thái qua các lần chạy**. Toàn bộ việc đọc/ghi file nằm ở lớp `DataStore`, tách riêng khỏi `Menu` và `BookingService`.
+
+### 🧭 9.1. Tổng quan
+
+```text
+Khởi động chương trình
+ │
+ ├── Có file dữ liệu?
+ │     ├── Có    → DataStore.load()  → khôi phục toàn bộ trạng thái
+ │     └── Không → nạp dữ liệu mẫu (SC01, SC02, chưa có vé)
+ │
+ ...  nhân viên thao tác (đặt vé, hủy vé, tra cứu) ...
+ │
+Thoát chương trình
+ └── DataStore.save()  → ghi toàn bộ trạng thái ra file
+```
+
+| Hạng mục | Nội dung |
+|:---|:---|
+| 📦 **Lớp phụ trách** | `DataStore` |
+| 📄 **Định dạng** | File văn bản _(hoặc Java Serialization, nhóm chọn một)_ |
+| 📁 **Vị trí file** | Thư mục `data/` trong project, dùng **đường dẫn tương đối** |
+| ⏱️ **Thời điểm nạp** | Khi khởi động |
+| ⏱️ **Thời điểm ghi** | Khi thoát chương trình |
+
+### 📂 9.2. Dữ liệu được lưu
+
+```text
+data/
+ ├── showtimes.txt    ← suất chiếu (mã suất, tên phim, giờ chiếu)
+ ├── bookings.txt     ← các lần đặt (mã đặt, tên người đặt, mã suất)
+ └── tickets.txt      ← các vé (mã vé, mã đặt, mã suất, mã ghế,
+                         đơn giá lúc đặt, trạng thái)
+```
+
+| Dữ liệu | Có cần lưu không | Lý do |
+|:---|:---:|:---|
+| Suất chiếu | ✅ | Để biết có những suất nào |
+| Booking | ✅ | Giữ lịch sử đặt vé |
+| Ticket (kèm trạng thái) | ✅ | Biết vé nào `ACTIVE`, vé nào `CANCELLED` |
+| **Đơn giá lúc đặt** của từng vé | ✅ | Hoàn tiền và thống kê dùng giá đã lưu |
+| Sơ đồ ghế 4 × 5 | ❌ | Cố định, dựng lại từ quy tắc A1–D5 |
+| Trạng thái ghế (trống/đã đặt) | ❌ | **Suy ra** từ các vé `ACTIVE`, không lưu cờ riêng |
+
+> [!IMPORTANT]
+> Trạng thái ghế **không** được lưu thành cột riêng. Sau khi nạp lại, ghế nào đã đặt được xác định từ các vé `ACTIVE` của từng suất. Cách này tránh việc dữ liệu ghế và dữ liệu vé bị lệch nhau.
+
+### 📝 9.3. Ví dụ nội dung file
+
+Định dạng minh họa, dùng dấu `|` ngăn cách các trường:
+
+```text
+# tickets.txt
+# ticketId|bookingId|showtimeId|seatId|priceAtBooking|status
+V1|B1|SC01|A1|70000|CANCELLED
+V2|B1|SC01|D1|100000|ACTIVE
+V3|B2|SC02|A1|70000|ACTIVE
+V4|B3|SC01|A1|70000|ACTIVE
+```
+
+> [!NOTE]
+> Dòng bắt đầu bằng `#` là chú thích. Bạn sửa ví dụ này cho đúng với **định dạng thật** mà code của nhóm ghi ra.
+
+### 🔄 9.4. Quy tắc nạp và ghi
+
+| # | Tình huống | Hành vi bắt buộc |
+|:---:|:---|:---|
+| 1 | Lần chạy đầu, chưa có file | Dùng **dữ liệu mẫu**, mỗi suất còn đủ 20 ghế |
+| 2 | Đã có dữ liệu | **Không** nạp mẫu đè lên dữ liệu đã lưu |
+| 3 | File bị hỏng hoặc sai định dạng | Báo **lỗi rõ ràng**, không thay bằng dữ liệu rỗng rồi ghi đè file cũ |
+| 4 | Ghi file thất bại | Báo "chưa lưu" và cho phép **thử lại** |
+| 5 | Lưu rồi mở lại | Khôi phục **đầy đủ** vé, trạng thái hủy, đơn giá lúc đặt và các số tiền |
+| 6 | Tạo mã mới sau khi nạp | Mã Booking và mã vé **không trùng** với mã đã có |
+
+> [!WARNING]
+> Tuyệt đối không để chương trình **ghi đè** file cũ bằng dữ liệu rỗng khi nạp lỗi. Làm vậy sẽ mất toàn bộ dữ liệu đã lưu.
+
+### 🧪 9.5. Kiểm tra lưu và nạp
+
+```text
+Bước 1: Đặt vé A1, D1 ở SC01 (V1, V2), hủy V1
+Bước 2: Lưu, thoát chương trình
+Bước 3: Mở lại chương trình
+
+Kết quả mong đợi:
+ - V1 = CANCELLED, hoàn 70.000
+ - V2 = ACTIVE, D1 vẫn là Đã đặt
+ - SC01 còn 19 ghế
+ - Đặt lại A1 ở SC01 → tạo vé mới, mã không trùng V1
+```
+
+### ⚖️ 9.6. Lựa chọn định dạng file
+
+| Tiêu chí | 📄 File văn bản | 📦 Java Serialization |
+|:---|:---|:---|
+| Dễ đọc bằng mắt | ✅ Mở bằng Notepad được | ❌ File nhị phân |
+| Dễ kiểm tra/sửa tay | ✅ | ❌ |
+| Lượng code | Nhiều hơn (tự tách/ghép chuỗi) | Ít hơn |
+| Rủi ro file hỏng | Dễ phát hiện dòng sai | Lỗi khó đọc hơn |
+| Yêu cầu khác | Phải xử lý dòng sai định dạng | Các lớp phải `implements Serializable` |
+
+> [!NOTE]
+> Nhóm chọn: **_(điền: File văn bản hoặc Java Serialization)_**. Lý do: _(điền 1 câu)_.
