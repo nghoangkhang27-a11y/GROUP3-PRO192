@@ -988,3 +988,84 @@ Kết quả mong đợi:
 
 > [!NOTE]
 > Nhóm chọn: **_(điền: File văn bản hoặc Java Serialization)_**. Lý do: _(điền 1 câu)_.
+## 📦 Dữ liệu mẫu
+
+Lần chạy đầu tiên (chưa có file lưu), chương trình nạp bộ dữ liệu mẫu dưới đây. Nếu đã có dữ liệu lưu thì **không** nạp mẫu đè lên.
+
+### 🏢 10.1. Phòng chiếu
+
+```text
+Phòng chiếu: 4 hàng × 5 ghế = 20 ghế
+ │
+ ├── Hàng A : A1 A2 A3 A4 A5   (Standard)
+ ├── Hàng B : B1 B2 B3 B4 B5   (Standard)
+ ├── Hàng C : C1 C2 C3 C4 C5   (Standard)
+ └── Hàng D : D1 D2 D3 D4 D5   (VIP)
+```
+
+### 💰 10.2. Loại ghế và giá
+
+| Loại ghế | Hàng | Mã ghế | Số ghế | Đơn giá |
+|:---:|:---:|:---:|:---:|---:|
+| 🟦 **Standard** | A, B, C | A1–C5 | 15 | **70.000 đ** |
+| 🟨 **VIP** | D | D1–D5 | 5 | **100.000 đ** |
+| | | **Tổng** | **20** | |
+
+### 🎞️ 10.3. Suất chiếu mẫu
+
+| Mã suất | Tên phim | Giờ chiếu | Số ghế | Ghế trống ban đầu |
+|:---:|:---|:---:|:---:|:---:|
+| **SC01** | Mật mã Java | 09:00 | 20 | 20 |
+| **SC02** | Mật mã Java | 14:00 | 20 | 20 |
+
+> [!NOTE]
+> Hai suất dùng **cùng một phòng và cùng sơ đồ ghế**, nhưng trạng thái ghế được tính **riêng theo từng suất**. A1 ở SC01 đã đặt thì A1 ở SC02 vẫn trống.
+
+### 🪑 10.4. Sơ đồ ghế ban đầu
+
+Ký hiệu: `[ ]` ghế trống, `[X]` ghế đã đặt.
+
+```text
+                     MÀN HÌNH
+          ═════════════════════════════
+
+            1     2     3     4     5
+   A       [ ]   [ ]   [ ]   [ ]   [ ]
+   B       [ ]   [ ]   [ ]   [ ]   [ ]
+   C       [ ]   [ ]   [ ]   [ ]   [ ]
+   D       [ ]   [ ]   [ ]   [ ]   [ ]    ← VIP
+```
+
+### 🎟️ 10.5. Trạng thái ban đầu
+
+| Hạng mục | Giá trị |
+|:---|:---:|
+| Số Booking | 0 |
+| Số Ticket | 0 |
+| Tổng tiền gốc | 0 |
+| Tổng tiền hoàn | 0 |
+| Ghế trống mỗi suất | 20 |
+
+### 🔄 10.6. Sơ đồ ghế sau khi thao tác
+
+Sau khi An đặt **A1, D1** ở **SC01** và Bình đặt **A1** ở **SC02**:
+
+```text
+SC01                                   SC02
+            1     2     3     4     5            1     2     3     4     5
+   A       [X]   [ ]   [ ]   [ ]   [ ]    A     [X]   [ ]   [ ]   [ ]   [ ]
+   B       [ ]   [ ]   [ ]   [ ]   [ ]    B     [ ]   [ ]   [ ]   [ ]   [ ]
+   C       [ ]   [ ]   [ ]   [ ]   [ ]    C     [ ]   [ ]   [ ]   [ ]   [ ]
+   D       [X]   [ ]   [ ]   [ ]   [ ]    D     [ ]   [ ]   [ ]   [ ]   [ ]
+
+SC01: còn 18 ghế                       SC02: còn 19 ghế
+```
+
+| Vé | Người đặt | Suất | Ghế | Loại | Đơn giá |
+|:---:|:---|:---:|:---:|:---:|---:|
+| V1 | An | SC01 | A1 | Standard | 70.000 |
+| V2 | An | SC01 | D1 | VIP | 100.000 |
+| V3 | Bình | SC02 | A1 | Standard | 70.000 |
+
+> [!IMPORTANT]
+> Ghế A1 xuất hiện ở cả hai suất nhưng là **hai vé khác nhau** (V1 và V3), vì ghế được xét theo cặp **mã suất + mã ghế**.
