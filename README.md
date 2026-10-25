@@ -484,3 +484,47 @@ Lưu và nạp dữ liệu
 | **Luồng chính** | Nhập mã vé → kiểm tra → xác nhận hủy → đổi trạng thái → hoàn tiền |
 | **Ngoại lệ** | Mã vé không tồn tại hoặc vé đã hủy → từ chối, không đổi dữ liệu |
 | **Điều kiện sau** | Vé `CANCELLED`, ghế được giải phóng đúng suất, hoàn 100% đơn giá đã lưu |
+## 🗂️ Use Case Diagram dạng tổng quát
+
+```text
+                         HỆ THỐNG ĐẶT VÉ XEM PHIM
+┌────────────────────────────────────────────────────────────────────────┐
+│                                                                        │
+│ Nhân viên quầy vé                                                      │
+│  │                                                                     │
+│  ├────────── (Tra cứu suất chiếu)                                      │
+│  ├────────── (Xem sơ đồ ghế)                                           │
+│  ├────────── (Đặt vé)                                                  │
+│  │               │                                                     │
+│  │               ├── <<include>> Kiểm tra toàn bộ danh sách ghế        │
+│  │               ├── <<include>> Xác nhận giá                          │
+│  │               └── <<include>> Tạo Booking + Ticket                  │
+│  ├────────── (Tra cứu vé)                                              │
+│  ├────────── (Hủy vé)                                                  │
+│  │               │                                                     │
+│  │               ├── <<include>> Xác nhận hủy                          │
+│  │               └── <<include>> Giải phóng ghế + hoàn tiền mô phỏng   │
+│  ├────────── (Xem thống kê suất chiếu)                                 │
+│  └────────── (Lưu và nạp dữ liệu)                                      │
+│                  │                                                     │
+│                  ├── <<include>> Nạp dữ liệu mẫu (khi chưa có file)    │
+│                  └── <<include>> Ghi dữ liệu ra file                   │
+│                                                                        │
+│ File lưu trữ                                                           │
+│  │                                                                     │
+│  ├────────── (Cung cấp dữ liệu khi khởi động)                          │
+│  └────────── (Nhận dữ liệu khi thoát)                                  │
+│                                                                        │
+└────────────────────────────────────────────────────────────────────────┘
+```
+
+> [!NOTE]
+> Khung ngoài là **ranh giới hệ thống**. Các actor nằm trong khung để dễ nhìn tổng thể. Mỗi `( )` là một use case, `<<include>>` là bước mà use case đó luôn thực hiện.
+
+### 🔗 Tóm tắt quan hệ
+
+| Use Case | Include | Ghi chú |
+|:---|:---|:---|
+| 🎟️ **Đặt vé** | Kiểm tra toàn bộ danh sách ghế, Xác nhận giá, Tạo Booking + Ticket | Kiểm tra xong toàn bộ mới tạo vé |
+| ❌ **Hủy vé** | Xác nhận hủy, Giải phóng ghế + hoàn tiền mô phỏng | Chỉ hủy được vé `ACTIVE` |
+| 💾 **Lưu và nạp dữ liệu** | Nạp dữ liệu mẫu, Ghi dữ liệu ra file | Có dữ liệu thì không nạp mẫu đè lên |
