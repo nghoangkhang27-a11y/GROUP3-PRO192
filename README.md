@@ -383,3 +383,104 @@ Thử hủy V1 lần nữa → TỪ CHỐI, A1 của V4 vẫn giữ nguyên
 
 > [!NOTE]
 > Nhập sai (mã suất, mã vé không tồn tại; tên chỉ có khoảng trắng; chọn menu sai) thì chương trình **báo lỗi, không đổi dữ liệu và menu vẫn dùng tiếp**.
+
+## 🗺️ Use Case Diagram
+
+Hệ thống đặt vé xem phim có **1 actor chính** và **1 actor phụ**. Các use case được mô tả theo từng actor.
+
+### 🎭 5.1. Actor
+
+```text
+Nhân viên quầy vé   (actor chính)
+File lưu trữ        (actor phụ)
+```
+
+### 🧑‍💼 5.2. Use Case của Nhân viên quầy vé
+
+```text
+Nhân viên quầy vé
+ ├── Tra cứu suất chiếu
+ ├── Xem sơ đồ ghế
+ ├── Đặt vé
+ ├── Tra cứu vé
+ ├── Hủy vé
+ ├── Xem thống kê suất chiếu
+ └── Lưu và nạp dữ liệu
+```
+
+`Đặt vé` có:
+
+```text
+Đặt vé
+ │
+ ├── <<include>> Xem sơ đồ ghế
+ ├── <<include>> Kiểm tra toàn bộ danh sách ghế
+ ├── <<include>> Xác nhận giá
+ └── <<include>> Tạo Booking + Ticket
+```
+
+`Hủy vé` có:
+
+```text
+Hủy vé
+ │
+ ├── <<include>> Tra cứu vé
+ ├── <<include>> Xác nhận hủy
+ └── <<include>> Giải phóng ghế và hoàn tiền mô phỏng
+```
+
+> [!NOTE]
+> Quan hệ `<<include>>` nghĩa là use case gốc **luôn** thực hiện use case được include.
+
+---
+
+### 💾 5.3. Use Case của File lưu trữ
+
+```text
+File lưu trữ
+ ├── Cung cấp dữ liệu khi khởi động
+ └── Nhận dữ liệu khi thoát
+```
+
+`Lưu và nạp dữ liệu` có:
+
+```text
+Lưu và nạp dữ liệu
+ │
+ ├── <<include>> Nạp dữ liệu mẫu (khi chưa có file)
+ └── <<include>> Ghi toàn bộ dữ liệu ra file
+```
+
+---
+
+### 📋 5.4. Tổng hợp Use Case
+
+| Mã | Use Case | Actor | Mô tả ngắn |
+|:---:|:---|:---|:---|
+| UC01 | 🎞️ Tra cứu suất chiếu | Nhân viên | Xem mã suất, tên phim, giờ chiếu, số ghế trống |
+| UC02 | 💺 Xem sơ đồ ghế | Nhân viên | Xem ghế trống / đã đặt của một suất |
+| UC03 | 🎟️ Đặt vé | Nhân viên | Nhập tên và danh sách ghế, xác nhận giá, tạo vé |
+| UC04 | 🔍 Tra cứu vé | Nhân viên | Tìm vé theo mã vé |
+| UC05 | ❌ Hủy vé | Nhân viên | Hủy vé còn hiệu lực, hoàn tiền mô phỏng 100% |
+| UC06 | 📊 Xem thống kê | Nhân viên | Vé còn hiệu lực, ghế trống, tiền gốc, tiền hoàn, còn lại |
+| UC07 | 💾 Lưu và nạp dữ liệu | Nhân viên, File lưu trữ | Ghi file khi thoát, nạp lại khi khởi động |
+
+### 📝 5.5. Đặc tả nhanh Use Case chính
+
+#### 🎟️ Đặt vé
+
+| Mục | Nội dung |
+|:---|:---|
+| **Điều kiện đầu** | Suất chiếu tồn tại và còn ghế trống |
+| **Luồng chính** | Chọn suất → xem ghế → nhập tên + ghế → kiểm tra → xác nhận giá → tạo vé |
+| **Ngoại lệ** | Ghế sai / lặp / đã đặt → từ chối **cả lần đặt**; không xác nhận → không tạo vé |
+| **Điều kiện sau** | Tạo Booking và các Ticket `ACTIVE`; ghế chuyển sang **Đã đặt** trong đúng suất |
+
+#### ❌ Hủy vé
+
+| Mục | Nội dung |
+|:---|:---|
+| **Điều kiện đầu** | Vé tồn tại và `status = ACTIVE` |
+| **Luồng chính** | Nhập mã vé → kiểm tra → xác nhận hủy → đổi trạng thái → hoàn tiền |
+| **Ngoại lệ** | Mã vé không tồn tại hoặc vé đã hủy → từ chối, không đổi dữ liệu |
+| **Điều kiện sau** | Vé `CANCELLED`, ghế được giải phóng đúng suất, hoàn 100% đơn giá đã lưu |
