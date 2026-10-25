@@ -208,12 +208,6 @@ Chọn suất → Xem sơ đồ ghế → Chọn nhiều ghế → Kiểm tra to
           → Xác nhận giá → Tạo Booking + Ticket → Tra cứu hoặc hủy vé → Lưu và nạp lại dữ liệu
 ```
 
-<p align="center">
-  <img src="docs/diagrams/luongnghiepvuchinh.png" alt="Luồng nghiệp vụ chính" width="100%">
-</p>
-
-<p align="center"><i>Hình 1. Luồng nghiệp vụ chính của hệ thống đặt vé xem phim</i></p>
-
 ### 🧭 3.1. Các nhánh trong luồng
 
 | Điểm quyết định | Điều kiện | Kết quả |
