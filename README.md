@@ -1102,3 +1102,117 @@ Sau ca 7:   V3 = A1/SC02  70.000   ACTIVE          SC02: 19 ghế trống
 Sau ca 8:   V1 = CANCELLED (hoàn 70.000)           SC01: 19 ghế trống
 
 Sau ca 10:  V4 = A1/SC01  70.000   ACTIVE          SC01:
+## 🏗️ Kiến trúc tổng thể
+
+Hệ thống chia thành **4 tầng**, mỗi tầng một trách nhiệm riêng, đúng yêu cầu đề: tách **dữ liệu/đối tượng**, **xử lý nghiệp vụ**, **đọc/ghi file** và **menu**.
+
+### 🧱 12.1. Sơ đồ các tầng
+
+```text
+┌────────────────────────────────────────────────────────────┐
+│  TẦNG GIAO DIỆN (UI)                                       │
+│  Main  ·  Menu                                             │
+│  Nhập dữ liệu, hiển thị kết quả. KHÔNG chứa nghiệp vụ.    │
+└──────────────────────────────┬─────────────────────────────┘
+                               │ gọi
+                               ▼
+┌────────────────────────────────────────────────────────────┐
+│  TẦNG NGHIỆP VỤ (Service)                                  │
+│  BookingService                                            │
+│  Kiểm tra ghế, tính giá, tạo vé, hủy vé, thống kê.         │
+└───────────────┬──────────────────────────────┬─────────────┘
+                │ dùng                         │ gọi
+                ▼                              ▼
+┌───────────────────────────────┐  ┌───────────────────────────┐
+│  TẦNG MÔ HÌNH (Model)         │  │  TẦNG LƯU TRỮ (Data)      │
+│  Seat · StandardSeat · VipSeat│  │  DataStore                │
+│  Showtime · Booking · Ticket  │  │  Đọc/ghi file dữ liệu.    │
+│  TicketStatus                 │  │                           │
+└───────────────────────────────┘  └─────────────┬─────────────┘
+                                                 │
+                                                 ▼
+                                        ┌─────────────────┐
+                                        │  📄 data/ (file)│
+                                        └─────────────────┘
+```
+
+### 📋 12.2. Trách nhiệm từng tầng
+
+| Tầng | Lớp | Trách nhiệm | Không được làm |
+|:---|:---|:---|:---|
+| 🖥️ **UI** | `Main`, `Menu` | Hiển thị menu, nhận lựa chọn, in kết quả và thông báo lỗi | Kiểm tra ghế, tính tiền, đổi trạng thái vé |
+| ⚙️ **Service** | `BookingService` | Toàn bộ quy tắc nghiệp vụ: kiểm tra, tạo vé, hủy vé, thống kê | Đọc/ghi file trực tiếp, in ra màn hình |
+| 🧩 **Model** | `Seat`, `StandardSeat`, `VipSeat`, `Showtime`, `Booking`, `Ticket`, `TicketStatus` | Giữ dữ liệu và hành vi của chính đối tượng | Gọi lên tầng Service hoặc UI |
+| 💾 **Data** | `DataStore` | Lưu và nạp dữ liệu ra/vào file | Chứa quy tắc nghiệp vụ |
+
+> [!IMPORTANT]
+> Hướng phụ thuộc đi **một chiều từ trên xuống**: UI → Service → Model / Data. Tầng dưới không biết gì về tầng trên.
+
+### 🔁 12.3. Luồng xử lý một lần đặt vé
+
+```text
+Nhân viên nhập (A1, D1) ở SC01
+        │
+        ▼
+   Menu          nhận dữ liệu nhập, chuyển cho Service
+        │
+        ▼
+   BookingService.validateSeats(...)      kiểm tra TOÀN BỘ danh sách ghế
+        │   ├── sai → ném lỗi → Menu in thông báo, KHÔNG tạo vé
+        │   └── hợp lệ ↓
+        ▼
+   BookingService.calculateTotal(...)     gọi seat.calculatePrice()  (đa hình)
+        │
+        ▼
+   Menu          hiển thị giá, hỏi xác nhận
+        │   ├── không xác nhận → dừng, không tạo vé
+        │   └── xác nhận ↓
+        ▼
+   BookingService.createBooking(...)      tạo Booking + Ticket, lưu giá lúc đặt
+        │
+        ▼
+   Menu          in kết quả: mã vé, tổng tiền
+        │
+        ▼
+   (khi thoát)   DataStore.save(...)      ghi toàn bộ dữ liệu ra file
+```
+
+### 🔄 12.4. Luồng khởi động và thoát
+
+```text
+KHỞI ĐỘNG
+ Main ──► DataStore.load()
+              ├── có file hợp lệ  → khôi phục BookingService
+              ├── chưa có file    → nạp dữ liệu mẫu
+              └── file hỏng       → báo lỗi, KHÔNG ghi đè
+ Main ──► Menu.run()   (vòng lặp menu)
+
+THOÁT
+ Menu ──► DataStore.save(BookingService)
+```
+
+### 🎯 12.5. Nguyên tắc thiết kế
+
+| # | Nguyên tắc | Cách thể hiện |
+|:---:|:---|:---|
+| 1 | **Tách trách nhiệm** | Menu, nghiệp vụ, mô hình và đọc/ghi file nằm ở các lớp riêng |
+| 2 | **Đóng gói** | Mọi thuộc tính khai báo `private`, truy cập qua getter |
+| 3 | **Kế thừa và đa hình** | `Seat` trừu tượng, `StandardSeat` và `VipSeat` override `calculatePrice()` |
+| 4 | **Không để lệch dữ liệu** | Trạng thái ghế **suy ra** từ vé `ACTIVE`, không lưu cờ `booked` riêng |
+| 5 | **All-or-nothing** | Kiểm tra toàn bộ trước khi tạo vé; thất bại không để lại dữ liệu một phần |
+| 6 | **Bảo vệ trạng thái vé** | Chỉ đổi trạng thái qua `Ticket.cancel()` sau khi kiểm tra điều kiện hủy |
+| 7 | **Chịu lỗi nhập** | Nhập sai thì báo rõ và cho tiếp tục thao tác, không thoát chương trình |
+
+> [!NOTE]
+> Đề dùng `this.` khi truy cập thành viên của đối tượng hiện tại và `super.` khi truy cập thành viên lớp cha. Nhóm áp dụng thống nhất trong toàn bộ mã nguồn.
+
+### 🛠️ 12.6. Công nghệ
+
+| Hạng mục | Lựa chọn |
+|:---|:---|
+| Ngôn ngữ | Java, **JDK 1.8 (JDK 8)** |
+| IDE | NetBeans 17 |
+| Giao diện | Console (menu văn bản) |
+| Thư viện | Chỉ dùng Java SE chuẩn (`ArrayList`, `HashMap`, `java.time`, I/O) |
+| Lưu trữ | File trong thư mục `data/`, đường dẫn tương đối |
+| Quản lý mã | Git, repo GitHub |
