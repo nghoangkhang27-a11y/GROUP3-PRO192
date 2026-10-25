@@ -1304,4 +1304,345 @@ nbproject/private/
 | `nbproject/private/` | Cấu hình riêng của từng máy |
 
 > [!WARNING]
-> Nếu bỏ qua `target/`, hãy **copy file JAR** sang thư mục `dist/` rồi commit, vì đề yêu cầu nộp kèm file JAR.
+> Nếu bỏ qua `target/`, hãy **copy file JAR** sang thư mục `dist/` rồi commit, vì đề yêu cầu nộp kèm file JAR.## 🚀 Hướng dẫn build và chạy
+
+### 🛠️ 14.1. Môi trường
+
+| Hạng mục | Yêu cầu |
+|:---|:---|
+| ☕ **JDK** | JDK 1.8 (JDK 8) |
+| 🧰 **IDE** | Apache NetBeans 17 |
+| 📦 **Thư viện** | Chỉ dùng Java SE chuẩn, không cần cài thêm |
+| 🖥️ **Hệ điều hành** | Windows / macOS / Linux |
+| 🌿 **Git** | Để clone repository |
+
+> [!IMPORTANT]
+> Project phải dùng **Java 8**. Nếu NetBeans đang dùng JDK khác, chương trình có thể không build được hoặc chạy sai.
+
+### 📥 14.2. Lấy mã nguồn
+
+```bash
+git clone https://github.com/<tên-tài-khoản>/FPTU-FA26-PRO192-SE21B-GroupXX.git
+```
+
+Hoặc trên trang GitHub bấm **Code → Download ZIP** rồi giải nén.
+
+### 🧭 14.3. Cách 1: Mở và chạy bằng NetBeans 17
+
+```text
+Bước 1   File → Open Project → chọn thư mục project → Open Project
+Bước 2   Chuột phải project → Properties → kiểm tra JDK = 1.8
+Bước 3   Run → Clean and Build Project   (phím Shift+F11)
+Bước 4   Run → Run Project               (phím F6)
+```
+
+| Bước | Thao tác | Kết quả mong đợi |
+|:---:|:---|:---|
+| 1 | Mở project | Project hiện trong tab **Projects** |
+| 2 | Kiểm tra JDK | Hiển thị `JDK 1.8` |
+| 3 | **Clean and Build** | Output báo `BUILD SUCCESS` (hoặc `BUILD SUCCESSFUL`) |
+| 4 | **Run** | Menu console của chương trình hiện ra |
+
+### 📦 14.4. Cách 2: Chạy file JAR
+
+```bash
+java -jar dist/MovieTicketandSeatManagement.jar
+```
+
+> [!NOTE]
+> Tên file JAR là ví dụ, thay bằng tên thật. Hãy chạy lệnh **từ thư mục gốc của project** để chương trình tìm đúng thư mục `data/` theo đường dẫn tương đối.
+
+Kiểm tra bản Java đang dùng:
+
+```bash
+java -version
+```
+
+Kết quả phải bắt đầu bằng `java version "1.8..."`.
+
+### 🎬 14.5. Chạy lần đầu
+
+```text
+Lần chạy đầu tiên
+ │
+ ├── Chưa có thư mục data/ → chương trình nạp DỮ LIỆU MẪU
+ │      SC01  Mật mã Java  09:00   (20 ghế trống)
+ │      SC02  Mật mã Java  14:00   (20 ghế trống)
+ │
+ └── Menu hiện ra, nhân viên bắt đầu thao tác
+```
+
+| Tình huống | Hành vi |
+|:---|:---|
+| Chưa có file dữ liệu | Nạp dữ liệu mẫu SC01, SC02 |
+| Đã có file dữ liệu | **Đọc lại** dữ liệu đã lưu, **không** nạp mẫu đè |
+| File dữ liệu bị lỗi | Báo lỗi rõ ràng, **không** ghi đè thành dữ liệu rỗng |
+
+### 💾 14.6. Vị trí file lưu và cách đặt lại dữ liệu
+
+| Hạng mục | Nội dung |
+|:---|:---|
+| 📁 **Thư mục lưu** | `data/` (đường dẫn tương đối, nằm cạnh `src/`) |
+| ⏱️ **Thời điểm ghi** | Khi thoát chương trình bằng lựa chọn **Thoát** trong menu |
+| 🔄 **Reset về dữ liệu mẫu** | Xóa thư mục `data/` rồi chạy lại |
+
+> [!WARNING]
+> Hãy thoát chương trình bằng **lựa chọn Thoát trong menu**, không đóng cửa sổ đột ngột, nếu không dữ liệu của lần chạy đó có thể chưa được ghi.
+
+### 🧪 14.7. Chạy thử nhanh
+
+Sau khi chạy được, thử luồng cơ bản để chắc chương trình hoạt động:
+
+```text
+1. Xem danh sách suất chiếu         → thấy SC01, SC02, mỗi suất 20 ghế trống
+2. Xem sơ đồ ghế SC01               → toàn bộ ghế trống
+3. Đặt vé A1, D1 ở SC01, xác nhận   → tổng 170.000, SC01 còn 18 ghế
+4. Thoát, mở lại chương trình       → vé vẫn còn, SC01 vẫn còn 18 ghế
+```
+
+Các ca kiểm thử đầy đủ nằm ở mục **Kịch bản nghiệm thu** và `docs/test_cases.md`.
+
+### 🧯 14.8. Xử lý lỗi thường gặp
+
+| Lỗi | Nguyên nhân | Cách xử lý |
+|:---|:---|:---|
+| `UnsupportedClassVersionError` | Chạy JAR bằng Java thấp hơn bản build | Dùng đúng JDK 8 để build và chạy |
+| Build lỗi do JDK | Project đang trỏ JDK khác | `Properties → Libraries/Sources` chọn JDK 1.8 |
+| Không thấy dữ liệu đã lưu | Chạy lệnh ở sai thư mục | Chạy từ **thư mục gốc project** |
+| Hiển thị tiếng Việt bị lỗi trong console | Console không dùng UTF-8 | Chạy `chcp 65001` (Windows) rồi chạy lại |
+| `java` không nhận lệnh | Chưa cấu hình `JAVA_HOME`/`PATH` | Cài JDK 8 và thêm vào `PATH` |
+## 🧪 Kiểm thử
+
+Nhóm kiểm thử trên **bộ dữ liệu mẫu** theo 12 ca nghiệm thu của đề, cộng thêm các ca nhập sai và file lỗi. Các ca chạy **liên tiếp theo thứ tự** trên cùng bộ dữ liệu.
+
+### 📌 15.1. Cách kiểm thử
+
+```text
+Bước 1   Xóa thư mục data/ để bắt đầu từ dữ liệu mẫu
+Bước 2   Chạy lần lượt ca 1 → 12 theo đúng thứ tự
+Bước 3   Ghi lại kết quả thực tế (mã vé, số ghế trống, các tổng tiền)
+Bước 4   So với kết quả mong đợi, đánh dấu Đạt / Chưa đạt
+Bước 5   Chạy tiếp các ca bổ sung 13 → 15
+```
+
+> [!IMPORTANT]
+> Ghi **mã vé thật** mà chương trình sinh ra thay cho ký hiệu `V1` đến `V4` trong đề.
+
+### ✅ 15.2. Bảng kiểm thử các ca nghiệm thu
+
+| Ca | Thao tác | Kết quả mong đợi | Kết quả thực tế | Đạt? |
+|:---:|:---|:---|:---|:---:|
+| 1 | Xem SC01 và SC02 khi mới tạo mẫu | Mỗi suất còn 20 ghế; số vé và tổng tiền = 0 | _điền_ | ⬜ |
+| 2 | An đặt A1, D1 ở SC01, xác nhận | V1/A1 = 70.000, V2/D1 = 100.000; tổng 170.000; SC01 còn 18 ghế | _điền_ | ⬜ |
+| 3 | Đặt A2 và A1 ở SC01 | Từ chối cả lần đặt vì A1 đang giữ; A2 vẫn trống | _điền_ | ⬜ |
+| 4 | Đặt A2 và E1 ở SC01 | Từ chối vì E1 không tồn tại; không tạo dữ liệu mới | _điền_ | ⬜ |
+| 5 | Đặt A2 và A2 ở SC01 | Từ chối mã ghế lặp; số vé và tổng tiền không đổi | _điền_ | ⬜ |
+| 6 | Đặt A2 ở SC01, chọn không xác nhận | Không tạo vé; SC01 còn 18 ghế | _điền_ | ⬜ |
+| 7 | Bình đặt A1 ở SC02, xác nhận | V3 = 70.000; SC02 còn 19 ghế; SC01 vẫn 18 ghế | _điền_ | ⬜ |
+| 8 | Hủy V1 của SC01, xác nhận | Hoàn 70.000; SC01 còn 19 ghế; gốc 170.000, hoàn 70.000, còn lại 100.000 | _điền_ | ⬜ |
+| 9 | Hủy lại V1 | Từ chối vì đã hủy; tổng hoàn vẫn 70.000 | _điền_ | ⬜ |
+| 10 | Đặt lại A1 ở SC01 (V4); thử hủy V1 | V4 hiệu lực; hủy V1 bị từ chối; gốc 240.000, hoàn 70.000, còn lại 170.000 | _điền_ | ⬜ |
+| 11 | Lưu, thoát, mở lại; tra V1–V4; thử đặt A1/SC01 | V1 đã hủy; V2, V3, V4 hiệu lực; đặt A1/SC01 bị từ chối; số tiền giữ nguyên | _điền_ | ⬜ |
+| 12 | Nhập mã suất, mã vé không tồn tại hoặc tên chỉ có khoảng trắng | Báo đúng lỗi, không đổi dữ liệu, menu vẫn dùng được | _điền_ | ⬜ |
+
+### ➕ 15.3. Ca bổ sung
+
+| Ca | Đầu vào | Kết quả mong đợi | Kết quả thực tế | Đạt? |
+|:---:|:---|:---|:---|:---:|
+| 13 | Nhập sai số thứ tự menu (chữ, số ngoài miền) | Báo lỗi rõ, menu hiện lại, không đổi dữ liệu | _điền_ | ⬜ |
+| 14 | Nhập danh sách ghế rỗng | Từ chối, yêu cầu nhập lại, không tạo vé | _điền_ | ⬜ |
+| 15 | Mở file dữ liệu bị lỗi | Báo lỗi rõ, **không** ghi đè thành dữ liệu rỗng | _điền_ | ⬜ |
+
+### 🔬 15.4. Các điểm kiểm tra trọng tâm
+
+| Nhóm | Điều cần chứng minh | Ca liên quan |
+|:---|:---|:---:|
+| 🎯 **Đa hình** | Giá được tính bằng `seat.calculatePrice()` qua kiểu `Seat` | 2, 7 |
+| 🔒 **All-or-nothing** | Đặt thất bại không để lại dữ liệu một phần | 3, 4, 5, 6 |
+| 🎞️ **Ghế theo suất** | Cùng ghế A1 ở hai suất độc lập nhau | 7 |
+| 💰 **Giá lúc đặt** | Hoàn tiền dùng đơn giá đã lưu trên vé | 8 |
+| ❌ **Hủy vé** | Hủy lần hai bị từ chối; hủy vé cũ không giải phóng ghế vé mới | 9, 10 |
+| 💾 **Lưu và nạp** | Khôi phục đủ trạng thái vé, số tiền sau khi mở lại | 11 |
+| 🧯 **Xử lý lỗi** | Nhập sai vẫn tiếp tục dùng menu được | 12, 13, 14, 15 |
+
+### 👥 15.5. Phân công kiểm thử
+
+| Thành viên | Phần phụ trách | Ca kiểm thử trọng tâm |
+|:---:|:---|:---:|
+| 1 | Ghế Standard/VIP, sơ đồ phòng, tra cứu suất | 1, 2 |
+| 2 | Kiểm tra danh sách ghế, báo giá, xác nhận đặt | 3, 4, 5, 6 |
+| 3 | Tạo lần đặt, sinh mã vé, tra cứu vé | 2, 7, 12 |
+| 4 | Hủy vé, hoàn tiền mô phỏng, thống kê | 8, 9, 10 |
+| 5 | Lưu/nạp dữ liệu, khôi phục trạng thái, tích hợp menu | 11, 15 |
+
+### 📊 15.6. Tổng kết kiểm thử
+
+| Chỉ số | Giá trị |
+|:---|:---:|
+| Tổng số ca | 15 |
+| Số ca đạt | _điền_ |
+| Số ca chưa đạt | _điền_ |
+| Ngày kiểm thử | _điền_ |
+| Người thực hiện | _điền_ |
+
+> [!NOTE]
+> Bảng chi tiết đầy đủ (kèm ảnh chụp màn hình hoặc đoạn output nếu cần) để ở [`docs/test_cases.md`](docs/test_cases.md). README chỉ giữ bảng tóm tắt.
+## 🤖 Minh bạch AI và giới hạn còn lại
+
+### 📓 16.1. Nhật ký sử dụng AI
+
+Nhóm được phép dùng AI theo kế hoạch học phần. Các lần hỗ trợ quan trọng được ghi tại:
+
+📎 [`docs/ai_logs/AI_INTERACTION_LOG.md`](docs/ai_logs/AI_INTERACTION_LOG.md)
+
+Mỗi lần ghi gồm:
+
+| Mục | Nội dung ghi |
+|:---|:---|
+| 👤 **Người thực hiện** | Thành viên đã dùng AI |
+| 🛠️ **Công cụ** | Tên công cụ AI (ví dụ Claude, ChatGPT) |
+| 🎯 **Mục tiêu / prompt chính** | Hỏi AI để làm gì |
+| 🔗 **Link hoặc trích đoạn** | Liên kết cuộc trò chuyện hoặc đoạn trích liên quan |
+| ✅ **Phần đã kiểm tra** | Nhóm đã kiểm chứng điều gì |
+| ✏️ **Phần tự chỉnh sửa** | Nhóm đã sửa hoặc viết lại điều gì |
+
+> [!IMPORTANT]
+> Mỗi thành viên chịu trách nhiệm **hiểu phần code mình nộp** và giải thích được khi vấn đáp, kể cả phần có AI hỗ trợ.
+
+### 🧾 16.2. Mẫu một dòng nhật ký
+
+```text
+Người thực hiện : Nguyễn Văn A (MSSV ...)
+Công cụ         : Claude
+Mục tiêu        : Viết phần giải thích quy tắc nghiệp vụ trong README
+Prompt chính    : "Viết mục Quy tắc nghiệp vụ theo đề tài P03 ..."
+Link / trích đoạn: <dán link hoặc đoạn trích>
+Đã kiểm tra     : Đối chiếu từng quy tắc với file đề
+Tự chỉnh sửa    : Sửa tên lớp cho khớp code, bỏ quy tắc không áp dụng
+```
+
+### ✅ 16.3. Chức năng đã hoàn thành
+
+> [!NOTE]
+> Chỉ tick ✅ khi chức năng **đã chạy đúng** và qua ca kiểm thử tương ứng.
+
+| Chức năng bắt buộc | Trạng thái |
+|:---|:---:|
+| 🎞️ Tra cứu suất chiếu | ⬜ |
+| 💺 Sơ đồ ghế theo từng suất | ⬜ |
+| 🎟️ Đặt vé (kiểm tra toàn bộ, báo giá, xác nhận) | ⬜ |
+| 🔍 Tra cứu vé theo mã vé | ⬜ |
+| ❌ Hủy vé và hoàn tiền mô phỏng 100% | ⬜ |
+| 📊 Thống kê theo suất | ⬜ |
+| 💾 Lưu và nạp file | ⬜ |
+| 🎯 Đa hình qua `Seat.calculatePrice()` | ⬜ |
+
+### ➕ 16.4. Phần mở rộng tùy chọn
+
+```text
+Chỉ làm khi toàn bộ chức năng bắt buộc đã chạy đúng
+và dữ liệu được giữ qua lần khởi động lại.
+```
+
+| Mở rộng | Trạng thái |
+|:---|:---:|
+| Tìm nhóm ghế trống liền nhau trong một hàng theo số người | ⬜ |
+| Tìm vé hoặc lần đặt theo tên người đặt; xuất biên nhận dạng văn bản | ⬜ |
+| Thêm loại ghế mới bằng kế thừa và override; vé cũ giữ đúng đơn giá đã lưu | ⬜ |
+
+### ⚠️ 16.5. Giới hạn còn lại
+
+Nhóm ghi rõ các lỗi hoặc giới hạn **chưa xử lý** để minh bạch.
+
+| # | Giới hạn / lỗi | Ảnh hưởng | Hướng xử lý |
+|:---:|:---|:---|:---|
+| 1 | _điền_ | _điền_ | _điền_ |
+| 2 | _điền_ | _điền_ | _điền_ |
+
+**Giới hạn theo phạm vi đề (chủ ý không làm):**
+
+```text
+- Chỉ một rạp, một phòng 4 × 5 ghế
+- Chỉ hai loại ghế Standard và VIP
+- Giao diện console, không có GUI
+- Không dùng database, đăng nhập hay thanh toán thật
+- Hoàn tiền chỉ là ghi nhận số tiền mô phỏng
+- Không có giá theo ngày lễ, thuế, phụ phí hay giảm giá
+```
+
+### 📣 16.6. Chuẩn bị bảo vệ
+
+Theo đề, buổi bảo vệ gồm:
+
+| Nội dung | Ghi chú |
+|:---|:---|
+| 🎬 Demo luồng thành công | Đặt vé thành công |
+| 🚫 Demo một trường hợp bị từ chối đúng quy tắc | Ví dụ đặt ghế đang được giữ |
+| 🎯 Demo một tình huống đa hình | Chỉ ra lời gọi `calculatePrice()` qua kiểu `Seat` |
+| 💾 Demo dữ liệu sau khi mở lại | Lưu, thoát, mở lại vẫn đủ vé |
+| 🙋 Mỗi thành viên giải thích phần mình | Kèm một ca kiểm thử và một thay đổi nhỏ thầy yêu cầu |
+## 🏁 Kết luận
+
+### 🎯 17.1. Tóm tắt hệ thống
+
+Hệ thống **đặt vé xem phim và quản lý ghế theo suất chiếu** là chương trình Java console, giúp nhân viên quầy vé xem suất chiếu, kiểm tra ghế trống, đặt vé, tra cứu vé, hủy vé và xem thống kê. Dữ liệu được lưu ra file để giữ nguyên trạng thái qua các lần chạy.
+
+```text
+Chọn suất → Xem sơ đồ ghế → Chọn nhiều ghế → Kiểm tra toàn bộ danh sách
+          → Xác nhận giá → Tạo Booking + Ticket → Tra cứu hoặc hủy vé
+          → Lưu và nạp lại dữ liệu
+```
+
+### 💡 17.2. Các điểm thiết kế nổi bật
+
+| # | Điểm nổi bật | Ý nghĩa |
+|:---:|:---|:---|
+| 1 | 🎞️ **Ghế được xét theo từng suất** | A1 ở SC01 đã đặt thì A1 ở SC02 vẫn đặt được; không có cờ `booked` dùng chung |
+| 2 | 🔒 **Đặt vé all-or-nothing** | Kiểm tra toàn bộ danh sách ghế trước khi tạo vé; thất bại không để lại dữ liệu một phần |
+| 3 | 🎯 **Đa hình thật** | `Seat` trừu tượng, `StandardSeat` và `VipSeat` override `calculatePrice()`; không dùng `if/switch` theo loại ghế |
+| 4 | 💰 **Lưu đơn giá lúc đặt** | Mỗi vé giữ giá tại thời điểm đặt, hoàn tiền và thống kê luôn dùng giá đã lưu |
+| 5 | 🛡️ **Bảo vệ trạng thái vé** | Chỉ hủy được vé `ACTIVE`; hủy lần hai bị từ chối; hủy vé cũ không giải phóng ghế của vé mới |
+| 6 | 🏗️ **Tách trách nhiệm** | Menu, nghiệp vụ, mô hình và đọc/ghi file nằm ở các lớp riêng |
+| 7 | 💾 **Lưu và khôi phục đầy đủ** | Mở lại chương trình vẫn đúng vé, trạng thái hủy và các số tiền; file lỗi không bị ghi đè thành rỗng |
+
+### 🧠 17.3. Kiến thức vận dụng
+
+```text
+Lập trình hướng đối tượng
+ ├── Đóng gói        : thuộc tính private, truy cập qua getter
+ ├── Kế thừa         : Seat → StandardSeat, VipSeat
+ ├── Đa hình         : seat.calculatePrice() (dynamic dispatch)
+ └── Trừu tượng hóa  : lớp abstract Seat, enum TicketStatus
+
+Kỹ năng khác
+ ├── Cấu trúc dữ liệu : ArrayList, HashMap
+ ├── Đọc/ghi file     : lưu và nạp trạng thái
+ ├── Xử lý lỗi nhập   : báo lỗi rõ, tiếp tục dùng menu
+ ├── Kiểm thử         : 12 ca nghiệm thu + ca bổ sung
+ └── Làm việc nhóm    : Git/GitHub, phân công theo thành viên
+```
+
+### 🚀 17.4. Hướng phát triển
+
+| Hướng | Mô tả |
+|:---|:---|
+| 🪑 Tìm nhóm ghế liền nhau | Gợi ý các ghế trống liền nhau trong một hàng theo số người xem |
+| 🔎 Tìm theo tên người đặt | Tra cứu vé hoặc lần đặt theo tên, xuất biên nhận dạng văn bản |
+| ➕ Thêm loại ghế mới | Ví dụ ghế đôi bằng kế thừa và override, vé cũ vẫn giữ đúng đơn giá đã lưu |
+| 🏢 Nhiều phòng, nhiều rạp | Mở rộng mô hình suất chiếu |
+| 🖥️ Giao diện đồ họa | Thay menu console bằng GUI |
+| 🗄️ Cơ sở dữ liệu | Thay file bằng database |
+
+> [!NOTE]
+> Các hướng từ nhiều phòng trở xuống nằm ngoài phạm vi đề hiện tại.
+
+### 🙏 17.5. Lời cảm ơn
+
+Nhóm xin cảm ơn giảng viên môn **PRO192** đã hướng dẫn và đưa ra đề tài, giúp nhóm vận dụng kiến thức OOP vào một bài toán thực tế.
+
+---
+
+<p align="center">
+  <b>🎬 Đặt vé xem phim và quản lý ghế theo suất chiếu</b><br/>
+  PRO192 · FA26 · SE21B · Group 3
+</p>
