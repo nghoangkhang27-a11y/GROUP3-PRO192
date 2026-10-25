@@ -700,3 +700,109 @@ Menu
 
 > [!NOTE]
 > `Menu` chỉ nhận dữ liệu nhập và hiển thị kết quả, không chứa nghiệp vụ.
+## 🔗 Quan hệ giữa các Class
+
+Mục này mô tả cách các lớp ở mục Class Diagram liên kết với nhau.
+
+### 🧬 7.1. Kế thừa (Inheritance)
+
+```text
+Seat  «abstract»
+ │
+ ├── StandardSeat   (hàng A, B, C - 70.000 đ)
+ └── VipSeat        (hàng D - 100.000 đ)
+```
+
+| Lớp cha | Lớp con | Ý nghĩa |
+|:---|:---|:---|
+| `Seat` | `StandardSeat`, `VipSeat` | Hai lớp con **override** `calculatePrice()` để trả về giá riêng |
+
+> [!IMPORTANT]
+> Đây là chỗ áp dụng **đa hình**: mã nguồn duyệt `List<Seat>` rồi gọi `calculatePrice()`, mỗi đối tượng tự trả giá đúng loại ghế.
+
+---
+
+### 🧩 7.2. Composition và Aggregation
+
+```text
+Booking  ◆───────── 1..*  Ticket
+Showtime ◇───────── 20    Seat
+```
+
+| Quan hệ | Loại | Giải thích |
+|:---|:---:|:---|
+| `Booking` → `Ticket` | **Composition** (1 – 1..*) | Một lần đặt chứa một hoặc nhiều vé; vé không tồn tại độc lập ngoài Booking |
+| `Showtime` → `Seat` | **Aggregation** (1 – 20) | Mỗi suất liên kết với sơ đồ 20 ghế của phòng |
+
+---
+
+### 🔀 7.3. Association (liên kết)
+
+```text
+Ticket ───────► TicketStatus     (vé có trạng thái ACTIVE hoặc CANCELLED)
+Ticket ───────► Seat             (vé gắn với một ghế, qua seatId)
+Ticket ───────► Showtime         (vé gắn với một suất, qua showtimeId)
+Booking ──────► Showtime         (một lần đặt thuộc một suất, qua showtimeId)
+```
+
+| Từ | Đến | Cách liên kết |
+|:---|:---|:---|
+| `Ticket` | `TicketStatus` | Thuộc tính `status` |
+| `Ticket` | `Seat` | Thuộc tính `seatId` |
+| `Ticket` | `Showtime` | Thuộc tính `showtimeId` |
+| `Booking` | `Showtime` | Thuộc tính `showtimeId` |
+
+> [!NOTE]
+> Một vé là **một ghế của một suất**. Trạng thái ghế được suy ra từ các vé `ACTIVE`, **không** lưu cờ `booked` dùng chung trong phòng.
+
+---
+
+### ⚙️ 7.4. Dependency (phụ thuộc)
+
+```text
+Menu ─ ─ ─ ─ ─► BookingService
+BookingService ─ ─ ─► Showtime
+BookingService ─ ─ ─► Booking
+BookingService ─ ─ ─► Ticket
+BookingService ─ ─ ─► DataStore
+DataStore ─ ─ ─ ─ ─► BookingService
+```
+
+| Lớp | Phụ thuộc vào | Mục đích |
+|:---|:---|:---|
+| `Menu` | `BookingService` | Gọi chức năng nghiệp vụ, chỉ nhập và hiển thị |
+| `BookingService` | `Showtime`, `Booking`, `Ticket` | Quản lý và xử lý dữ liệu |
+| `BookingService` | `DataStore` | Lưu và nạp dữ liệu |
+| `DataStore` | `BookingService` | Đọc và ghi trạng thái hiện tại |
+
+---
+
+### 🗺️ 7.5. Sơ đồ quan hệ tổng quát
+
+```text
+                       Menu
+                         │  dùng
+                         ▼
+                  BookingService ─ ─ ─ ─ ─ ─ ─► DataStore
+                         │
+        ┌────────────────┼──────────────────┐
+        ▼                ▼                  ▼
+    Showtime          Booking             Ticket
+        ◇                ◆                  │
+        │ 20             │ 1..*             ├──► TicketStatus
+        ▼                ▼                  ├──► Seat
+       Seat            Ticket               └──► Showtime
+        ▲
+   ┌────┴────┐
+StandardSeat  VipSeat
+```
+
+### 📋 7.6. Tóm tắt các quan hệ
+
+| Loại quan hệ | Ký hiệu | Các cặp lớp |
+|:---|:---:|:---|
+| Kế thừa | `▲` | `Seat` ← `StandardSeat`, `VipSeat` |
+| Composition | `◆` | `Booking` — `Ticket` |
+| Aggregation | `◇` | `Showtime` — `Seat` |
+| Association | `──►` | `Ticket` → `TicketStatus`, `Seat`, `Showtime`; `Booking` → `Showtime` |
+| Dependency | `- - ►` | `Menu` → `BookingService`; `BookingService` ↔ `DataStore` |
