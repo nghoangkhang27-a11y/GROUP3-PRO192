@@ -14,17 +14,6 @@ import cinema.service.Statistics;
 import java.util.List;
 import java.util.Scanner;
 
-/**
- * Giao diện console: chỉ NHẬN dữ liệu và HIỂN THỊ kết quả.
- * Mọi quy tắc nghiệp vụ nằm ở BookingService.
- *
- * Phân công:
- *   [Thành viên 1] showShowtimes, showSeatMap
- *   [Thành viên 2] bookTickets (bước kiểm tra, báo giá, xác nhận)
- *   [Thành viên 3] bookTickets (bước tạo vé), lookupTicket
- *   [Thành viên 4] cancelTicket, showStatistics
- *   [Thành viên 5] run (vòng lặp menu), saveData, lưu khi thoát
- */
 public class Menu {
 
     private final BookingService service;
@@ -39,10 +28,6 @@ public class Menu {
         this.scanner = scanner;
         this.saveEnabled = saveEnabled;
     }
-
-    // =====================================================================
-    // [Thành viên 5] Vòng lặp menu
-    // =====================================================================
 
     public void run() {
         boolean running = true;
@@ -76,7 +61,7 @@ public class Menu {
                     running = !this.exitProgram();
                     break;
                 default:
-                    System.out.println("Lựa chọn không hợp lệ. Vui lòng nhập số từ 0 đến 7.");
+                    System.out.println("Invalid choice. Please enter a number from 0 to 7.");
                     break;
             }
         }
@@ -84,21 +69,20 @@ public class Menu {
 
     private void printMenu() {
         System.out.println();
-        System.out.println("========== ĐẶT VÉ XEM PHIM ==========");
-        System.out.println(" 1. Tra cứu suất chiếu");
-        System.out.println(" 2. Xem sơ đồ ghế");
-        System.out.println(" 3. Đặt vé");
-        System.out.println(" 4. Tra cứu vé");
-        System.out.println(" 5. Hủy vé");
-        System.out.println(" 6. Thống kê theo suất");
-        System.out.println(" 7. Lưu dữ liệu");
-        System.out.println(" 0. Thoát (tự động lưu)");
-        System.out.println("=====================================");
+        System.out.println("========== MOVIE TICKET BOOKING ==========");
+        System.out.println(" 1. Show showtimes");
+        System.out.println(" 2. View seat map");
+        System.out.println(" 3. Book tickets");
+        System.out.println(" 4. Look up ticket");
+        System.out.println(" 5. Cancel ticket");
+        System.out.println(" 6. Showtime statistics");
+        System.out.println(" 7. Save data");
+        System.out.println(" 0. Exit (auto-save)");
+        System.out.println("==========================================");
     }
 
-    /** Đọc lựa chọn menu; nhập sai (chữ, rỗng, ngoài miền) thì trả về -1 để báo lỗi. */
     private int readMenuChoice() {
-        String line = this.readLine("Chọn chức năng: ");
+        String line = this.readLine("Choose an option: ");
         if (this.endOfInput) {
             return 0;
         }
@@ -113,25 +97,25 @@ public class Menu {
         }
     }
 
-    /** Thoát chương trình. @return true nếu thực sự thoát. */
     private boolean exitProgram() {
         if (!this.saveEnabled) {
-            System.out.println("Việc lưu file đang TẮT (do file dữ liệu lỗi) nên dữ liệu lần này không được ghi.");
-            System.out.println("Tạm biệt!");
+            System.out
+                    .println("Saving is DISABLED (the data file was invalid), so this session's data was not written.");
+            System.out.println("Goodbye!");
             return true;
         }
         while (true) {
             try {
                 this.store.save(this.service);
-                System.out.println("Đã lưu dữ liệu vào '" + this.store.getDirectory() + "'. Tạm biệt!");
+                System.out.println("Data saved to '" + this.store.getDirectory() + "'. Goodbye!");
                 return true;
             } catch (DataStoreException e) {
-                System.out.println("CHƯA LƯU được dữ liệu: " + e.getMessage());
+                System.out.println("NOT SAVED: " + e.getMessage());
                 if (this.endOfInput) {
                     return true;
                 }
-                if (!this.confirm("Thử lưu lại? (y = thử lại, n = thoát không lưu)")) {
-                    System.out.println("Thoát mà không lưu. Dữ liệu lần này sẽ mất.");
+                if (!this.confirm("Retry saving? (y = retry, n = exit without saving)")) {
+                    System.out.println("Exiting without saving. This session's data will be lost.");
                     return true;
                 }
             }
@@ -140,44 +124,40 @@ public class Menu {
 
     private void saveData() {
         if (!this.saveEnabled) {
-            System.out.println("Việc lưu file đang TẮT vì file dữ liệu lỗi khi khởi động.");
+            System.out.println("Saving is DISABLED because the data file was invalid at startup.");
             return;
         }
         try {
             this.store.save(this.service);
-            System.out.println("Đã lưu dữ liệu vào '" + this.store.getDirectory() + "'.");
+            System.out.println("Data saved to '" + this.store.getDirectory() + "'.");
         } catch (DataStoreException e) {
-            System.out.println("CHƯA LƯU được dữ liệu: " + e.getMessage());
-            System.out.println("Bạn có thể chọn lại chức năng 7 để thử lại.");
+            System.out.println("NOT SAVED: " + e.getMessage());
+            System.out.println("You can choose option 7 again to retry.");
         }
     }
 
-    // =====================================================================
-    // [Thành viên 1] Suất chiếu và sơ đồ ghế
-    // =====================================================================
-
     private void showShowtimes() {
-        System.out.println("---------- DANH SÁCH SUẤT CHIẾU ----------");
-        System.out.printf("%-8s %-24s %-8s %s%n", "Mã suất", "Tên phim", "Giờ", "Ghế trống");
+        System.out.println("---------- SHOWTIMES ----------");
+        System.out.printf("%-10s %-24s %-8s %s%n", "Showtime", "Movie", "Time", "Free seats");
         for (Showtime showtime : this.service.getShowtimes()) {
             int free = this.service.countFreeSeats(showtime.getShowtimeId());
-            System.out.printf("%-8s %-24s %-8s %d/%d%n", showtime.getShowtimeId(), showtime.getMovieTitle(),
+            System.out.printf("%-10s %-24s %-8s %d/%d%n", showtime.getShowtimeId(), showtime.getMovieTitle(),
                     showtime.getStartTimeText(), free, Room.TOTAL_SEATS);
         }
     }
 
     private void showSeatMap() {
-        String showtimeId = this.readLine("Nhập mã suất (ví dụ SC01): ");
+        String showtimeId = this.readLine("Enter showtime ID (e.g. SC01): ");
         try {
             this.printSeatMap(this.service.getShowtime(showtimeId));
         } catch (BookingException e) {
-            System.out.println("Lỗi: " + e.getMessage());
+            System.out.println("Error: " + e.getMessage());
         }
     }
 
     private void printSeatMap(Showtime showtime) {
-        System.out.println("---------- SƠ ĐỒ GHẾ: " + showtime + " ----------");
-        System.out.println("                 MÀN HÌNH");
+        System.out.println("---------- SEAT MAP: " + showtime + " ----------");
+        System.out.println("                 SCREEN");
         System.out.println("          ---------------------------");
         StringBuilder header = new StringBuilder("       ");
         for (int n = 1; n <= Room.SEATS_PER_ROW; n++) {
@@ -202,66 +182,58 @@ public class Menu {
             }
             System.out.println(line);
         }
-        System.out.println("Chú thích: [A1] = ghế trống | [XX] = ghế đã đặt");
-        System.out.println("Loại ghế : hàng A, B, C = Standard | hàng D = VIP");
-        System.out.println("Ghế trống: " + this.service.countFreeSeats(showtime.getShowtimeId()) + "/" + Room.TOTAL_SEATS);
+        System.out.println("Legend    : [A1] = free seat | [XX] = booked seat");
+        System.out.println("Seat types: rows A, B, C = Standard | row D = VIP");
+        System.out.println(
+                "Free seats: " + this.service.countFreeSeats(showtime.getShowtimeId()) + "/" + Room.TOTAL_SEATS);
     }
-
-    // =====================================================================
-    // [Thành viên 2, 3] Đặt vé
-    // =====================================================================
 
     private void bookTickets() {
         try {
-            String showtimeId = this.readLine("Nhập mã suất: ");
+            String showtimeId = this.readLine("Enter showtime ID: ");
             Showtime showtime = this.service.getShowtime(showtimeId);
             this.printSeatMap(showtime);
 
-            String name = this.readLine("Tên người đặt: ");
+            String name = this.readLine("Customer name: ");
             if (name.trim().isEmpty()) {
-                throw new BookingException("Tên người đặt không được rỗng.");
+                throw new BookingException("Customer name must not be empty.");
             }
-            String seatInput = this.readLine("Nhập danh sách ghế (ví dụ A1, D1): ");
+            String seatInput = this.readLine("Enter seats (e.g. A1, D1): ");
             List<String> seatIds = BookingService.parseSeatInput(seatInput);
 
-            // [Thành viên 2] Kiểm tra TOÀN BỘ danh sách, rồi báo giá (đa hình trong service)
             List<Seat> seats = this.service.validateSeats(showtime.getShowtimeId(), seatIds);
-            System.out.println("---------- BÁO GIÁ ----------");
+            System.out.println("---------- PRICE QUOTE ----------");
             for (Seat seat : seats) {
-                System.out.printf("  %-4s %-9s %s%n", seat.getSeatId(), seat.getTypeName(), money(seat.calculatePrice()));
+                System.out.printf("  %-4s %-9s %s%n", seat.getSeatId(), seat.getTypeName(),
+                        money(seat.calculatePrice()));
             }
-            System.out.println("  Tổng tiền: " + money(this.service.calculateTotal(seats)));
+            System.out.println("  Total: " + money(this.service.calculateTotal(seats)));
 
-            if (!this.confirm("Xác nhận đặt vé? (y/n)")) {
-                System.out.println("Đã hủy thao tác đặt vé. Không tạo vé và không giữ chỗ.");
+            if (!this.confirm("Confirm booking? (y/n)")) {
+                System.out.println("Booking cancelled. No ticket was created and no seat was held.");
                 return;
             }
 
-            // [Thành viên 3] Tạo lần đặt và vé
             Booking booking = this.service.createBooking(name, showtime.getShowtimeId(), seatIds);
-            System.out.println("ĐẶT VÉ THÀNH CÔNG. Mã lần đặt: " + booking.getBookingId()
-                    + " | Người đặt: " + booking.getCustomerName());
+            System.out.println("BOOKING SUCCESSFUL. Booking ID: " + booking.getBookingId()
+                    + " | Customer: " + booking.getCustomerName());
             for (Ticket ticket : booking.getTickets()) {
-                System.out.println("  Vé " + ticket.getTicketId() + " | Ghế " + ticket.getSeatId()
+                System.out.println("  Ticket " + ticket.getTicketId() + " | Seat " + ticket.getSeatId()
                         + " | " + money(ticket.getPriceAtBooking()));
             }
-            System.out.println("  Tổng tiền: " + money(booking.getTotalAmount()));
+            System.out.println("  Total: " + money(booking.getTotalAmount()));
         } catch (BookingException e) {
-            System.out.println("KHÔNG ĐẶT ĐƯỢC: " + e.getMessage());
-            System.out.println("Không có vé nào được tạo, dữ liệu không thay đổi.");
+            System.out.println("BOOKING FAILED: " + e.getMessage());
+            System.out.println("No ticket was created. Data is unchanged.");
         }
     }
 
-    // =====================================================================
-    // [Thành viên 3] Tra cứu vé
-    // =====================================================================
-
     private void lookupTicket() {
-        String ticketId = this.readLine("Nhập mã vé (ví dụ V1): ");
+        String ticketId = this.readLine("Enter ticket ID (e.g. V1): ");
         try {
             this.printTicket(this.service.findTicket(ticketId));
         } catch (BookingException e) {
-            System.out.println("Lỗi: " + e.getMessage());
+            System.out.println("Error: " + e.getMessage());
         }
     }
 
@@ -269,61 +241,54 @@ public class Menu {
         Booking booking = this.service.findBookingOf(ticket);
         Showtime showtime = this.service.getShowtime(ticket.getShowtimeId());
         Seat seat = showtime.findSeat(ticket.getSeatId());
-        System.out.println("---------- THÔNG TIN VÉ ----------");
-        System.out.println("  Mã vé          : " + ticket.getTicketId());
-        System.out.println("  Người đặt      : " + booking.getCustomerName());
-        System.out.println("  Mã lần đặt     : " + booking.getBookingId());
-        System.out.println("  Suất chiếu     : " + showtime);
-        System.out.println("  Ghế            : " + ticket.getSeatId() + " (" + seat.getTypeName() + ")");
-        System.out.println("  Đơn giá lúc đặt: " + money(ticket.getPriceAtBooking()));
-        System.out.println("  Trạng thái     : " + ticket.getStatus().getLabel());
+        System.out.println("---------- TICKET INFORMATION ----------");
+        System.out.println("  Ticket ID        : " + ticket.getTicketId());
+        System.out.println("  Customer         : " + booking.getCustomerName());
+        System.out.println("  Booking ID       : " + booking.getBookingId());
+        System.out.println("  Showtime         : " + showtime);
+        System.out.println("  Seat             : " + ticket.getSeatId() + " (" + seat.getTypeName() + ")");
+        System.out.println("  Price at booking : " + money(ticket.getPriceAtBooking()));
+        System.out.println("  Status           : " + ticket.getStatus().name());
     }
 
-    // =====================================================================
-    // [Thành viên 4] Hủy vé và thống kê
-    // =====================================================================
-
     private void cancelTicket() {
-        String ticketId = this.readLine("Nhập mã vé cần hủy: ");
+        String ticketId = this.readLine("Enter ticket ID to cancel: ");
         try {
             Ticket ticket = this.service.findTicket(ticketId);
             this.printTicket(ticket);
             if (!ticket.isActive()) {
-                System.out.println("Vé này đã hủy trước đó, không thể hủy lại.");
+                System.out.println("This ticket was already cancelled and cannot be cancelled again.");
                 return;
             }
-            if (!this.confirm("Xác nhận hủy vé " + ticket.getTicketId() + "? Sẽ hoàn mô phỏng "
-                    + money(ticket.getPriceAtBooking()) + " (y/n)")) {
-                System.out.println("Đã bỏ qua, vé giữ nguyên.");
+            if (!this.confirm("Cancel ticket " + ticket.getTicketId() + "? A simulated refund of "
+                    + money(ticket.getPriceAtBooking()) + " will be issued (y/n)")) {
+                System.out.println("Skipped. The ticket is unchanged.");
                 return;
             }
             long refund = this.service.cancelTicket(ticket.getTicketId());
-            System.out.println("ĐÃ HỦY vé " + ticket.getTicketId() + ". Hoàn mô phỏng: " + money(refund));
-            System.out.println("Ghế " + ticket.getSeatId() + " ở suất " + ticket.getShowtimeId() + " đã được giải phóng.");
+            System.out.println("CANCELLED ticket " + ticket.getTicketId() + ". Simulated refund: " + money(refund));
+            System.out.println(
+                    "Seat " + ticket.getSeatId() + " in showtime " + ticket.getShowtimeId() + " has been released.");
         } catch (BookingException e) {
-            System.out.println("KHÔNG HỦY ĐƯỢC: " + e.getMessage());
+            System.out.println("CANCEL FAILED: " + e.getMessage());
         }
     }
 
     private void showStatistics() {
-        String showtimeId = this.readLine("Nhập mã suất cần thống kê: ");
+        String showtimeId = this.readLine("Enter showtime ID for statistics: ");
         try {
             Statistics stats = this.service.getStatistics(showtimeId);
             Showtime showtime = this.service.getShowtime(showtimeId);
-            System.out.println("---------- THỐNG KÊ " + showtime + " ----------");
-            System.out.println("  Số vé còn hiệu lực : " + stats.getActiveTickets());
-            System.out.println("  Số ghế trống       : " + stats.getFreeSeats() + "/" + Room.TOTAL_SEATS);
-            System.out.println("  Tổng tiền vé gốc   : " + money(stats.getTotalAmount()));
-            System.out.println("  Tổng tiền đã hoàn  : " + money(stats.getRefundedAmount()));
-            System.out.println("  Còn lại sau hoàn   : " + money(stats.getRemainingAmount()));
+            System.out.println("---------- STATISTICS " + showtime + " ----------");
+            System.out.println("  Active tickets    : " + stats.getActiveTickets());
+            System.out.println("  Free seats        : " + stats.getFreeSeats() + "/" + Room.TOTAL_SEATS);
+            System.out.println("  Total (original)  : " + money(stats.getTotalAmount()));
+            System.out.println("  Total refunded    : " + money(stats.getRefundedAmount()));
+            System.out.println("  Remaining         : " + money(stats.getRemainingAmount()));
         } catch (BookingException e) {
-            System.out.println("Lỗi: " + e.getMessage());
+            System.out.println("Error: " + e.getMessage());
         }
     }
-
-    // =====================================================================
-    // Tiện ích nhập/xuất
-    // =====================================================================
 
     private String readLine(String prompt) {
         System.out.print(prompt);
@@ -335,24 +300,22 @@ public class Menu {
         return this.scanner.nextLine();
     }
 
-    /** Hỏi xác nhận y/n; hết dữ liệu nhập thì coi như KHÔNG xác nhận. */
     private boolean confirm(String question) {
         while (true) {
             String answer = this.readLine(question + ": ").trim().toLowerCase();
             if (this.endOfInput) {
                 return false;
             }
-            if (answer.equals("y") || answer.equals("yes") || answer.equals("c") || answer.equals("có")) {
+            if (answer.equals("y") || answer.equals("yes")) {
                 return true;
             }
-            if (answer.equals("n") || answer.equals("no") || answer.equals("k") || answer.equals("không")) {
+            if (answer.equals("n") || answer.equals("no")) {
                 return false;
             }
-            System.out.println("Vui lòng nhập y (đồng ý) hoặc n (không).");
+            System.out.println("Please enter y (yes) or n (no).");
         }
     }
 
-    /** Định dạng tiền: 170000 -> "170.000 đ". */
     static String money(long amount) {
         String digits = Long.toString(Math.abs(amount));
         StringBuilder sb = new StringBuilder();
@@ -362,6 +325,6 @@ public class Menu {
             }
             sb.append(digits.charAt(i));
         }
-        return (amount < 0 ? "-" : "") + sb + " đ";
+        return (amount < 0 ? "-" : "") + sb + " VND";
     }
 }

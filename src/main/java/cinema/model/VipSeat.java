@@ -1,11 +1,7 @@
 package cinema.model;
 
-/**
- * [Thành viên 1] Ghế VIP (hàng D) - 100.000 đồng.
- */
 public class VipSeat extends Seat {
-
-    public static final long PRICE = 100000L;
+    public static final long price = 100000;
 
     public VipSeat(char row, int number) {
         super(row, number);
@@ -13,7 +9,7 @@ public class VipSeat extends Seat {
 
     @Override
     public long calculatePrice() {
-        return VipSeat.PRICE;
+        return price;
     }
 
     @Override

@@ -1,63 +1,65 @@
 package cinema.model;
 
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
-/**
- * [Thành viên 1] Một suất chiếu: mã suất, tên phim, giờ chiếu và sơ đồ phòng.
- */
 public class Showtime {
-
-    private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
-
-    private final String showtimeId;
-    private final String movieTitle;
-    private final LocalTime startTime;
-    private final Room room;
+    private String showtimeId;
+    private String movieTitle;
+    private LocalTime startTime; 
+    private List<Seat> seats;
 
     public Showtime(String showtimeId, String movieTitle, LocalTime startTime) {
-        if (showtimeId == null || showtimeId.trim().isEmpty()) {
-            throw new IllegalArgumentException("Mã suất không được rỗng.");
-        }
-        if (movieTitle == null || movieTitle.trim().isEmpty()) {
-            throw new IllegalArgumentException("Tên phim không được rỗng.");
-        }
-        if (startTime == null) {
-            throw new IllegalArgumentException("Giờ chiếu không được rỗng.");
-        }
-        this.showtimeId = showtimeId.trim().toUpperCase();
-        this.movieTitle = movieTitle.trim();
+        this.showtimeId = showtimeId;
+        this.movieTitle = movieTitle;
         this.startTime = startTime;
-        this.room = new Room();
+        this.seats = new ArrayList<>();
+        
+        
+        char[] rows = {'A', 'B', 'C', 'D'};
+        for (char r : rows) {
+            for (int i = 1; i <= 5; i++) {
+                if (r == 'D') {
+                    seats.add(new VipSeat(r, i));
+                } else {
+                    seats.add(new StandardSeat(r, i));
+                }
+            }
+        }
     }
 
+
+    public Seat findSeat(String seatId) {
+        if (seatId == null) return null;
+        String normalizedId = seatId.trim().toUpperCase();
+        for (Seat s : seats) {
+            if (s.getSeatId().equals(normalizedId)) {
+                return s;
+            }
+        }
+        return null;
+    }
+
+    
     public String getShowtimeId() {
-        return this.showtimeId;
+        return showtimeId;
     }
 
     public String getMovieTitle() {
-        return this.movieTitle;
+        return movieTitle;
     }
 
     public LocalTime getStartTime() {
-        return this.startTime;
+        return startTime;
     }
 
+    
     public String getStartTimeText() {
-        return this.startTime.format(Showtime.TIME_FORMAT);
+        return startTime != null ? startTime.toString() : "";
     }
 
     public List<Seat> getSeats() {
-        return this.room.getSeats();
-    }
-
-    public Seat findSeat(String seatId) {
-        return this.room.findSeat(seatId);
-    }
-
-    @Override
-    public String toString() {
-        return this.showtimeId + " - " + this.movieTitle + " (" + this.getStartTimeText() + ")";
+        return seats;
     }
 }
