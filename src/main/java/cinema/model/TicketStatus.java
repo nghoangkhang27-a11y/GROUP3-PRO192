@@ -1,7 +1,7 @@
 package cinema.model;
 
 
-public enum TicketStatus {
+public enum  {
   ACTIVE("Still valid"),
 
     /**

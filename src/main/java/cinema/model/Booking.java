@@ -1,6 +1,6 @@
 package cinema.model;
 
-import java.util.ArrayList;
+import java.util.ArrayLis;
 import java.util.Collections;
 import java.util.List;
 
