@@ -5,7 +5,7 @@ public class Ticket {
     private final String bookingId;
     private final String showtimeId;
     private final String seatId;
-    private final long piceAtBooking;
+    private final long priceAtBooking;
     private TicketStatus status;
     
 public Ticket(String ticketId, String bookingId, String showtimeId, String seatId, long priceAtBooking) {
