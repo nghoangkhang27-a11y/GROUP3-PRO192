@@ -17,7 +17,7 @@ public class Showtime {
         this.seats = new ArrayList<>();
         
         
-        char[] rows = {'A', 'B', 'C', 'D'};
+        char rows[] = {'A', 'B', 'C', 'D'};
         for (char r : rows) {
             for (int i = 1; i <= 5; i++) {
                 if (r == 'D') {
