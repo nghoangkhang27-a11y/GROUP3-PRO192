@@ -16,21 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Lớp xử lý toàn bộ NGHIỆP VỤ. Menu chỉ nhập/hiển thị, không chứa quy tắc.
- *
- * Phân công:
- *   [Thành viên 1] getShowtimes, getShowtime, countFreeSeats, isSeatBooked
- *   [Thành viên 2] parseSeatInput, validateSeats, calculateTotal
- *   [Thành viên 3] createBooking, findTicket, findBookingOf, sinh mã duy nhất
- *   [Thành viên 4] cancelTicket, getStatistics
- *   [Thành viên 5] constructor khôi phục từ file, withSampleData
- *
- * Trạng thái ghế KHÔNG được lưu riêng: một ghế "đã đặt" khi tồn tại vé ACTIVE
- * có cùng (mã suất, mã ghế). Nhờ vậy dữ liệu ghế và vé không thể lệch nhau.
- */
 public class BookingService {
-
     private final Map<String, Showtime> showtimes = new LinkedHashMap<String, Showtime>();
     private final List<Booking> bookings = new ArrayList<Booking>();
     private final Map<String, Booking> bookingById = new LinkedHashMap<String, Booking>();
@@ -38,11 +24,6 @@ public class BookingService {
     private int lastBookingNumber = 0;
     private int lastTicketNumber = 0;
 
-    // =====================================================================
-    // [Thành viên 5] Khởi tạo
-    // =====================================================================
-
-    /** Khôi phục từ dữ liệu đã nạp (DataStore đã kiểm tra tính hợp lệ). */
     public BookingService(List<Showtime> showtimeList, List<Booking> bookingList) {
         for (Showtime showtime : showtimeList) {
             this.showtimes.put(showtime.getShowtimeId(), showtime);
@@ -60,11 +41,10 @@ public class BookingService {
         }
     }
 
-    /** Bộ dữ liệu mẫu theo đề: SC01 (09:00) và SC02 (14:00), chưa có vé. */
     public static BookingService withSampleData() {
         List<Showtime> list = new ArrayList<Showtime>();
-        list.add(new Showtime("SC01", "Mật mã Java", LocalTime.of(9, 0)));
-        list.add(new Showtime("SC02", "Mật mã Java", LocalTime.of(14, 0)));
+        list.add(new Showtime("SC01", "Java Code", LocalTime.of(9, 0)));
+        list.add(new Showtime("SC02", "Java Code", LocalTime.of(14, 0)));
         return new BookingService(list, new ArrayList<Booking>());
     }
 
@@ -83,33 +63,25 @@ public class BookingService {
         }
     }
 
-    // =====================================================================
-    // [Thành viên 1] Suất chiếu và trạng thái ghế
-    // =====================================================================
-
     public Collection<Showtime> getShowtimes() {
         return Collections.unmodifiableCollection(this.showtimes.values());
     }
 
-    /** Tìm suất theo mã (không phân biệt hoa/thường, bỏ khoảng trắng đầu/cuối). */
     public Showtime getShowtime(String showtimeId) {
         String id = BookingService.normalize(showtimeId);
         if (id.isEmpty()) {
-            throw new BookingException("Mã suất không được rỗng.");
+            throw new BookingException("Showtime ID must nnot be empty.");
         }
         Showtime showtime = this.showtimes.get(id);
         if (showtime == null) {
-            throw new BookingException("Không tìm thấy suất chiếu '" + id + "'.");
+            throw new BookingException("Showtime'" + id + "'not found.");
         }
         return showtime;
     }
 
-    /** Ghế đã đặt khi có vé ACTIVE cùng (mã suất, mã ghế). */
     public boolean isSeatBooked(String showtimeId, String seatId) {
         for (Ticket ticket : this.ticketById.values()) {
-            if (ticket.isActive()
-                    && ticket.getShowtimeId().equals(showtimeId)
-                    && ticket.getSeatId().equals(seatId)) {
+            if (ticket.isActive() && ticket.getShowtimeId().equals(seatId)) {
                 return true;
             }
         }
@@ -127,17 +99,12 @@ public class BookingService {
         return free;
     }
 
-    // =====================================================================
-    // [Thành viên 2] Kiểm tra danh sách ghế và báo giá
-    // =====================================================================
-
-    /** Tách chuỗi nhập (phân cách bằng dấu phẩy, chấm phẩy hoặc khoảng trắng). */
     public static List<String> parseSeatInput(String raw) {
         List<String> result = new ArrayList<String>();
         if (raw == null) {
             return result;
         }
-        for (String part : raw.split("[,;\\s]+")) {
+        for (String part : raw.split("[,:\\s]+")) {
             String id = BookingService.normalize(part);
             if (!id.isEmpty()) {
                 result.add(id);
@@ -146,32 +113,27 @@ public class BookingService {
         return result;
     }
 
-    /**
-     * Kiểm tra TOÀN BỘ danh sách ghế. Không thay đổi dữ liệu.
-     * Ném BookingException nếu: rỗng, ghế lặp, ghế ngoài sơ đồ, ghế đang bị giữ.
-     * @return danh sách đối tượng Seat tương ứng (theo đúng thứ tự nhập)
-     */
-    public List<Seat> validateSeats(String showtimeId, List<String> seatIds) {
+    public List<Seat> validateSeats(String showtimeId, List<String> seatId) {
         Showtime showtime = this.getShowtime(showtimeId);
-        if (seatIds == null || seatIds.isEmpty()) {
-            throw new BookingException("Danh sách ghế không được rỗng.");
+        if (seatId == null || seatId.isEmpty()) {
+            throw new BookingException("Seat list must not be empty.");
         }
         Set<String> seen = new HashSet<String>();
         List<Seat> seats = new ArrayList<Seat>();
-        for (String rawId : seatIds) {
+        for (String rawId : seatId) {
             String id = BookingService.normalize(rawId);
             if (id.isEmpty()) {
-                throw new BookingException("Mã ghế không được rỗng.");
+                throw new BookingException("Seat ID must not be empty.");
             }
             if (!seen.add(id)) {
-                throw new BookingException("Mã ghế bị lặp trong danh sách đặt: " + id + ".");
+                throw new BookingException("Duplicate seat ID in the booking list: " + id + ".");
             }
             Seat seat = showtime.findSeat(id);
             if (seat == null) {
-                throw new BookingException("Ghế '" + id + "' không tồn tại (mã hợp lệ từ A1 đến D5).");
+                throw new BookingException("Seat '" + id + "'does not exist(valid IDs are A1 to D5).");
             }
             if (this.isSeatBooked(showtime.getShowtimeId(), id)) {
-                throw new BookingException("Ghế " + id + " đang được giữ bởi vé còn hiệu lực ở suất "
+                throw new BookingException("Seat" + id + "is already held by an active ticket in showtime"
                         + showtime.getShowtimeId() + ".");
             }
             seats.add(seat);
@@ -179,35 +141,22 @@ public class BookingService {
         return seats;
     }
 
-    /**
-     * Tính tổng tiền. ĐA HÌNH: duyệt qua kiểu Seat, mỗi đối tượng tự trả giá
-     * đúng loại (StandardSeat 70.000, VipSeat 100.000) - không dùng if/switch.
-     */
     public long calculateTotal(List<Seat> seats) {
         long total = 0L;
         for (Seat seat : seats) {
-            total += seat.calculatePrice(); // dynamic dispatch
+            total += seat.calculatePrice();
         }
         return total;
     }
 
-    // =====================================================================
-    // [Thành viên 3] Tạo lần đặt, mã vé, tra cứu vé
-    // =====================================================================
-
-    /**
-     * Tạo lần đặt. Kiểm tra mọi điều kiện TRƯỚC, chỉ khi hợp lệ mới tạo và
-     * ghi vào bộ nhớ, nên thất bại không để lại dữ liệu một phần.
-     */
     public Booking createBooking(String customerName, String showtimeId, List<String> seatIds) {
         String name = customerName == null ? "" : customerName.trim();
         if (name.isEmpty()) {
-            throw new BookingException("Tên người đặt không được rỗng.");
+            throw new BookingException("Customer name must not be empty.");
         }
         Showtime showtime = this.getShowtime(showtimeId);
         List<Seat> seats = this.validateSeats(showtime.getShowtimeId(), seatIds);
 
-        // Bước 1: dựng đối tượng tạm, CHƯA đụng đến dữ liệu chính
         String bookingId = this.nextBookingId();
         Booking booking = new Booking(bookingId, name, showtime.getShowtimeId());
         int ticketCounter = this.lastTicketNumber;
@@ -216,12 +165,11 @@ public class BookingService {
             String ticketId = this.nextTicketId(ticketCounter, newTickets);
             ticketCounter = BookingService.numericSuffix(ticketId);
             Ticket ticket = new Ticket(ticketId, bookingId, showtime.getShowtimeId(),
-                    seat.getSeatId(), seat.calculatePrice()); // giá tại lúc đặt (đa hình)
+                    seat.getSeatId(), seat.calculatePrice());
             booking.addTicket(ticket);
             newTickets.add(ticket);
         }
 
-        // Bước 2: mọi thứ đã hợp lệ, ghi vào dữ liệu chính
         this.lastBookingNumber = BookingService.numericSuffix(bookingId);
         this.lastTicketNumber = ticketCounter;
         this.bookings.add(booking);
@@ -232,7 +180,6 @@ public class BookingService {
         return booking;
     }
 
-    /** Sinh mã lần đặt mới, bảo đảm không trùng mã đã có. */
     private String nextBookingId() {
         int number = this.lastBookingNumber;
         String id;
@@ -243,7 +190,6 @@ public class BookingService {
         return id;
     }
 
-    /** Sinh mã vé mới, bảo đảm không trùng mã đã có hoặc vé vừa tạo trong lần đặt này. */
     private String nextTicketId(int fromNumber, List<Ticket> pending) {
         int number = Math.max(fromNumber, this.lastTicketNumber);
         String id;
@@ -266,11 +212,11 @@ public class BookingService {
     public Ticket findTicket(String ticketId) {
         String id = BookingService.normalize(ticketId);
         if (id.isEmpty()) {
-            throw new BookingException("Mã vé không được rỗng.");
+            throw new BookingException("Ticket ID must not be empty.");
         }
         Ticket ticket = this.ticketById.get(id);
         if (ticket == null) {
-            throw new BookingException("Không tìm thấy vé '" + id + "'.");
+            throw new BookingException("Ticket '" + id + "' not found.");
         }
         return ticket;
     }
@@ -283,26 +229,15 @@ public class BookingService {
         return Collections.unmodifiableList(this.bookings);
     }
 
-    // =====================================================================
-    // [Thành viên 4] Hủy vé và thống kê
-    // =====================================================================
-
-    /**
-     * Hủy vé theo mã. Chỉ hủy được vé ACTIVE; hủy lần hai bị từ chối.
-     * Ghế được giải phóng đúng suất (do trạng thái ghế suy ra từ vé ACTIVE),
-     * và không ảnh hưởng vé mới đặt lại cùng ghế.
-     * @return số tiền hoàn mô phỏng (100% đơn giá đã lưu trên vé)
-     */
     public long cancelTicket(String ticketId) {
         Ticket ticket = this.findTicket(ticketId);
         if (!ticket.isActive()) {
-            throw new BookingException("Vé " + ticket.getTicketId()
-                    + " đã được hủy trước đó, không thể hủy lại.");
+            throw new BookingException("Ticket " + ticket.getTicketId()
+                    + " was already cancelled and cannot be cancelled again.");
         }
         return ticket.cancel();
     }
 
-    /** Thống kê của một suất: dùng đơn giá đã lưu trên vé, không tính lại từ bảng giá. */
     public Statistics getStatistics(String showtimeId) {
         Showtime showtime = this.getShowtime(showtimeId);
         int active = 0;
@@ -321,10 +256,6 @@ public class BookingService {
         return new Statistics(showtime.getShowtimeId(), active,
                 this.countFreeSeats(showtime.getShowtimeId()), total, refunded);
     }
-
-    // =====================================================================
-    // Tiện ích
-    // =====================================================================
 
     private static String normalize(String raw) {
         return raw == null ? "" : raw.trim().toUpperCase();
