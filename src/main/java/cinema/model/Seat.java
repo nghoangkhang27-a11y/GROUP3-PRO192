@@ -15,7 +15,7 @@ public abstract class Seat {
     public abstract String getTypeName();
 
     public String getSeatId() {
-        return seatId;
+        return this.seatId;
     }
 
     public char getRow() {
@@ -23,6 +23,6 @@ public abstract class Seat {
     }
 
     public int getNumber() {
-        return number;
+        return this.number;
     }
 }

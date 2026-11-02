@@ -31,7 +31,9 @@ public class Showtime {
 
 
     public Seat findSeat(String seatId) {
-        if (seatId == null) return null;
+        if (seatId == null){
+            return null;
+        }
         String normalizedId = seatId.trim().toUpperCase();
         for (Seat s : seats) {
             if (s.getSeatId().equals(normalizedId)) {
@@ -43,7 +45,7 @@ public class Showtime {
 
     
     public String getShowtimeId() {
-        return showtimeId;
+        return this.showtimeId;
     }
 
     public String getMovieTitle() {
@@ -51,15 +53,15 @@ public class Showtime {
     }
 
     public LocalTime getStartTime() {
-        return startTime;
+        return this.startTime;
     }
 
     
     public String getStartTimeText() {
-        return startTime != null ? startTime.toString() : "";
+        return this.startTime != null ? startTime.toString() : "";
     }
 
     public List<Seat> getSeats() {
-        return seats;
+        return this.seats;
     }
 }
