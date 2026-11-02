@@ -8,7 +8,7 @@ public abstract class Seat {
     public Seat(char row, int number) {
         this.row = row;
         this.number = number;
-        this.seatId = this.row + this.number;
+        this.seatId = String.valueOf(row) + number;
     }
 
     public abstract long calculatePrice();
