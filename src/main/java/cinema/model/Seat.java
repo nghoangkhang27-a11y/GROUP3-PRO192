@@ -8,7 +8,7 @@ public abstract class Seat {
     public Seat(char row, int number) {
         this.row = row;
         this.number = number;
-        this.seatId = "" + row + number;
+        this.seatId = this.row + this.number;
     }
 
     public abstract long calculatePrice();
@@ -19,7 +19,7 @@ public abstract class Seat {
     }
 
     public char getRow() {
-        return row;
+        return this.row;
     }
 
     public int getNumber() {
