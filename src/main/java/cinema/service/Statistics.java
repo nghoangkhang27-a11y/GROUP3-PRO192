@@ -1,7 +1,11 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ */
 package cinema.service;
 
 /**
- * [Thành viên 4] Kết quả thống kê của một suất chiếu.
+ *
+ * @author Nguyen Chi
  */
 public class Statistics {
 
@@ -12,7 +16,7 @@ public class Statistics {
     private final long refundedAmount;
 
     public Statistics(String showtimeId, int activeTickets, int freeSeats,
-                      long totalAmount, long refundedAmount) {
+            long totalAmount, long refundedAmount) {
         this.showtimeId = showtimeId;
         this.activeTickets = activeTickets;
         this.freeSeats = freeSeats;
@@ -23,28 +27,20 @@ public class Statistics {
     public String getShowtimeId() {
         return this.showtimeId;
     }
-
-    /** Số vé còn hiệu lực. */
     public int getActiveTickets() {
         return this.activeTickets;
     }
-
-    /** Số ghế trống. */
     public int getFreeSeats() {
         return this.freeSeats;
     }
-
-    /** Tổng tiền gốc của mọi vé đã tạo (kể cả vé đã hủy). */
     public long getTotalAmount() {
         return this.totalAmount;
     }
-
-    /** Tổng tiền đã hoàn. */
+    
     public long getRefundedAmount() {
         return this.refundedAmount;
     }
 
-    /** Số tiền còn lại sau hoàn. */
     public long getRemainingAmount() {
         return this.totalAmount - this.refundedAmount;
     }
