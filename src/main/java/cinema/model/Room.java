@@ -5,8 +5,8 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * [Thành viên 1] Phòng chiếu 4 hàng x 5 ghế (A1-D5).
- * Phòng chỉ ĐỊNH NGHĨA ghế, không lưu cờ "đã đặt" dùng chung cho mọi suất.
+ * [Thành viên 1] Phòng chiếu 4 hàng x 5 ghế (A1-D5). Phòng chỉ ĐỊNH NGHĨA ghế,
+ * không lưu cờ "đã đặt" dùng chung cho mọi suất.
  */
 public class Room {
 
@@ -21,15 +21,14 @@ public class Room {
         for (char row = Room.FIRST_ROW; row <= Room.LAST_ROW; row++) {
             for (int number = 1; number <= Room.SEATS_PER_ROW; number++) {
                 if (row == 'D') {
-                    this.seats.add(new VipSeat(row, number));
+                    this.seats.add(new VipSeat(row, number, 100000));
                 } else {
-                    this.seats.add(new StandardSeat(row, number));
+                    this.seats.add(new StandardSeat(row, number, 70000));
                 }
             }
         }
     }
 
-    /** Tìm ghế theo mã đã chuẩn hóa (chữ hoa). Không có thì trả về null. */
     public Seat findSeat(String seatId) {
         if (seatId == null) {
             return null;

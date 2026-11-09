@@ -21,9 +21,9 @@ public class Showtime {
         for (char r : rows) {
             for (int i = 1; i <= 5; i++) {
                 if (r == 'D') {
-                    seats.add(new VipSeat(r, i));
+                    seats.add(new VipSeat(r, i, 100000));
                 } else {
-                    seats.add(new StandardSeat(r, i));
+                    seats.add(new StandardSeat(r, i, 70000));
                 }
             }
         }

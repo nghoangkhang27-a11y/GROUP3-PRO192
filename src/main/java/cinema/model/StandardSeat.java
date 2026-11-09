@@ -1,10 +1,11 @@
 package cinema.model;
 
 public class StandardSeat extends Seat {
-    public static final long price = 70000;
+        private long price = 70000;
 
-    public StandardSeat(char row, int number) {
+    public StandardSeat(char row, int number, long price) {
         super(row, number);
+        this.price = price;
     }
 
     @Override
