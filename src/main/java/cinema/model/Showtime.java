@@ -58,9 +58,13 @@ public class Showtime {
 
     
     public String getStartTimeText() {
-        return this.startTime != null ? startTime.toString() : "";
+        if( this.startTime != null ){
+            return startTime.toString();
+        }
+        else{
+            return null;
+        }
     }
-
     public List<Seat> getSeats() {
         return this.seats;
     }
